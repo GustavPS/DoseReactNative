@@ -48,12 +48,14 @@ export const ContentList = (props) => {
     */
 
     const renderItem = ({ item }) => (
-        <Poster title={item.title} poster={item.getPosterPath('original')} onFocus={props.onFocus} style={styles.poster} />
+        <Poster title={item.title}
+                poster={item.getPosterPath('original')}
+                onFocus={() => props.onFocus(item)}
+                style={styles.poster} />
     )
 
     return (
-        <TouchableWithoutFeedback>
-            <View style={styles.container}>
+            <View style={[styles.container, props.style]}>
                 <Text style={styles.rowTitle}>{props.title}</Text>
                 <FlatList
                     horizontal={true}
@@ -64,7 +66,6 @@ export const ContentList = (props) => {
                     renderItem={renderItem}
                 />
             </View>
-        </TouchableWithoutFeedback>
     );
 };
 
@@ -76,6 +77,7 @@ const styles = StyleSheet.create({
         marginRight: 15
     },
     rowTitle: {
+        textTransform: 'capitalize',
         fontSize: 20,
         color: 'white',
         textShadowColor: 'rgba(0, 0, 0, 0.75)',

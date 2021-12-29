@@ -68,6 +68,87 @@ export class ContentServer {
         });
     }
 
+    /**
+     * Get a list of the current movie watchlist
+     * 
+     * @returns 
+     */
+    getMovieWatchlist() {
+        return new Promise((resolve, reject) => {
+            this.token.validateContentToken().then(token => {
+                const url = `${this.url}/api/movies/list/watchlist?token=${token}`;
+                fetch(url).then(result => {
+                    result.json().then(data => {
+                        const movies = data.result;
+                        const returnData = [];
+                        for (const movie of movies) {
+                            returnData.push(
+                                new Movie(movie.title, movie.overview, movie.id, movie.images)
+                            );
+                        }
+                        resolve(returnData);
+                    }).catch(err => {
+                        reject(err);
+                    });
+                }).catch(err => {
+                    reject(err);
+                })
+            });
+        });
+    }
+
+    /**
+     * Get a list of all genres
+     * 
+     * @returns 
+     */
+    getGenres() {
+        return new Promise((resolve, reject) => {
+            this.token.validateContentToken().then(token => {
+                const url = `${this.url}/api/genre/list?token=${token}`;
+                fetch(url).then(result => {
+                    result.json().then(data => {
+                        resolve(data.genres);
+                    }).catch(err => {
+                        reject(err);
+                    });
+                }).catch(err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+
+    /**
+     * Get a list of movies by genre
+     * 
+     * @param {string} genre - The genre to get movies for 
+     * @returns 
+     */
+    getMoviesByGenre(genre) {
+        return new Promise((resolve, reject) => {
+            this.token.validateContentToken().then(token => {
+                const url = `${this.url}/api/movies/list/genre/${genre}?token=${token}`;
+                fetch(url).then(result => {
+                    result.json().then(data => {
+                        const movies = data.result;
+                        const returnData = [];
+                        for (const movie of movies) {
+                            returnData.push(
+                                new Movie(movie.title, movie.overview, movie.id, movie.images)
+                            );
+                        }
+                        resolve(returnData);
+                    }).catch(err => {
+                        reject(err);
+                    });
+                }).catch(err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+
     requestAccessToServer(ip) {
         return new Promise((resolve, reject) => {
             this.token.validateMainToken().then(token => {

@@ -15,6 +15,10 @@ export class Movie {
         return `${this.#baseImagePath}/${size}${this.poster}`;
     }
 
+    getBackdropPath(size) {
+        return `${this.#baseImagePath}/${size}${this.backdrop}`;
+    }
+
     setActiveImages() {
         for (const image of this.images) {
             if (image.active) {
