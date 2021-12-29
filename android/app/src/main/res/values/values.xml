@@ -1,0 +1,545 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+    <color name="lb_action_text_color">#EEEEEE</color>
+    <color name="lb_background_protection">#99000000</color>
+    <color name="lb_basic_card_bg_color">#FF263238</color>
+    <color name="lb_basic_card_content_text_color">#B3EEEEEE</color>
+    <color name="lb_basic_card_info_bg_color">#FF37474F</color>
+    <color name="lb_basic_card_title_text_color">#FFEEEEEE</color>
+    <color name="lb_default_brand_color">#FF1B1C1E</color>
+    <color name="lb_default_brand_color_dark">#FF263238</color>
+    <color name="lb_grey">#888888</color>
+    <color name="lb_list_item_unselected_text_color">#FFF1F1F1</color>
+
+    <declare-styleable name="LeanbackTheme">
+
+        <!-- start padding of BrowseFragment, RowsFragment, DetailsFragment -->
+        <attr format="dimension" name="browsePaddingStart"/>
+        <!-- end padding of BrowseFragment, RowsFragment, DetailsFragment -->
+        <attr format="dimension" name="browsePaddingEnd"/>
+        <!-- top padding of BrowseFragment -->
+        <attr format="dimension" name="browsePaddingTop"/>
+        <!-- bottom padding of BrowseFragment -->
+        <attr format="dimension" name="browsePaddingBottom"/>
+        <!-- start margin of RowsFragment inside BrowseFragment when HeadersFragment is visible -->
+        <attr format="dimension" name="browseRowsMarginStart"/>
+        <!-- top margin of RowsFragment inside BrowseFragment when BrowseFragment title is visible -->
+        <attr format="dimension" name="browseRowsMarginTop"/>
+        <!-- fading edge length of start of browse row when HeadersFragment is visible -->
+        <attr format="dimension" name="browseRowsFadingEdgeLength"/>
+
+        <!-- fragment title text style -->
+        <attr format="reference" name="browseTitleTextStyle"/>
+
+        <!-- fragment title icon style -->
+        <attr format="reference" name="browseTitleIconStyle"/>
+
+        <!-- fragment title view style -->
+        <attr format="reference" name="browseTitleViewStyle"/>
+
+        <!-- customize title view layout file, it must have title view with id browse_title_group -->
+        <attr format="reference" name="browseTitleViewLayout"/>
+
+        <!-- vertical grid style inside HeadersFragment -->
+        <attr format="reference" name="headersVerticalGridStyle"/>
+        <!-- header style inside HeadersFragment -->
+        <attr format="reference" name="headerStyle"/>
+        <!-- Non selectable header style inside HeadersFragment -->
+        <attr format="reference" name="sectionHeaderStyle"/>
+
+        <!-- vertical grid style inside RowsFragment -->
+        <attr format="reference" name="rowsVerticalGridStyle"/>
+
+        <!-- horizontal grid style inside a row -->
+        <attr format="reference" name="rowHorizontalGridStyle"/>
+        <!-- header style inside a row -->
+        <attr format="reference" name="rowHeaderStyle"/>
+
+        <!-- header description style inside a row -->
+        <attr format="reference" name="rowHeaderDescriptionStyle"/>
+
+        <!-- style for the layout that hosting Header inside a row -->
+        <attr format="reference" name="rowHeaderDockStyle"/>
+
+        <!-- hover card title style -->
+        <attr format="reference" name="rowHoverCardTitleStyle"/>
+        <!-- hover card description style -->
+        <attr format="reference" name="rowHoverCardDescriptionStyle"/>
+
+        <attr format="reference" name="fallbackBackground"/>
+
+        <!-- CardView styles -->
+        <attr format="reference" name="baseCardViewStyle"/>
+        <attr format="reference" name="imageCardViewStyle"/>
+        <attr format="reference" name="imageCardViewImageStyle"/>
+        <attr format="reference" name="imageCardViewTitleStyle"/>
+        <attr format="reference" name="imageCardViewContentStyle"/>
+        <attr format="reference" name="imageCardViewBadgeStyle"/>
+        <attr format="reference" name="imageCardViewInfoAreaStyle"/>
+
+        <!-- style for a vertical grid of items -->
+        <attr format="reference" name="itemsVerticalGridStyle"/>
+
+        <!-- for messages in the error fragment -->
+        <attr format="reference" name="errorMessageStyle"/>
+
+        <!-- Default brand color used for the background of certain leanback visual elements
+             such as the headers fragment. If your app runs on:
+             a) SDK 21+: set colorPrimary, used by the leanback launcher and elsewhere, and defaultBrandColor will inherit it.
+             b) SDK < 21: set the brand color explicitly via defaultBrandColor, or programatically.
+         -->
+        <attr format="reference|color" name="defaultBrandColor"/>
+        <!-- Default dark brand color used for the background of certain leanback visual elements
+             such as the actions background. If your app runs on:
+             a) SDK 21+: set colorPrimaryDark, used by the leanback launcher and elsewhere, and defaultBrandColorDark will inherit it.
+             b) SDK < 21: set the brand color explicitly via defaultBrandColorDark, or programatically.
+         -->
+        <attr format="reference|color" name="defaultBrandColorDark"/>
+
+        <!-- Default background color for Search Icon -->
+        <attr format="reference|color" name="defaultSearchColor"/>
+        <!-- Default icon color for Search Icon -->
+        <attr format="reference|color" name="defaultSearchIconColor"/>
+        <!-- Default color that search orb pulses to.  If not set, this color is determined programatically based on the defaultSearchColor -->
+        <attr format="reference|color" name="defaultSearchBrightColor"/>
+        <!-- Default color for SectionHeader, by default same as defaultSearchColor -->
+        <attr format="reference|color" name="defaultSectionHeaderColor"/>
+
+        <!-- Style for searchOrb -->
+        <attr format="reference" name="searchOrbViewStyle"/>
+        <attr format="reference" name="defaultSearchIcon"/>
+
+        <attr format="reference|color" name="playbackProgressPrimaryColor"/>
+        <attr format="reference|color" name="playbackProgressSecondaryColor"/>
+        <attr format="reference|color" name="playbackControlsIconHighlightColor"/>
+        <attr format="reference" name="playbackControlsActionIcons"/>
+        <!-- Milliseconds to auto hide playback controls when media start playing. -->
+        <attr format="reference|integer" name="playbackControlsAutoHideTimeout"/>
+        <!-- Milliseconds to auto hide playback controls after user interacts with playback controls (i.e.
+             after fragment.tickle() is called).
+             Default value is disabled (0), app can turn it on by setting a positive milliseconds.
+             When enabled, value of playbackControlsAutoHideTickleTimeout usually should be set longer than playbackControlsAutoHideTimeout
+             for user to have enough time to think. -->
+        <attr format="reference|integer" name="playbackControlsAutoHideTickleTimeout"/>
+
+        <!-- Default color for dimmed views. -->
+        <attr format="color" name="overlayDimMaskColor"/>
+        <!-- Default level of dimming for active views. -->
+        <attr format="fraction" name="overlayDimActiveLevel"/>
+        <!-- Default level of dimming for dimmed views. -->
+        <attr format="fraction" name="overlayDimDimmedLevel"/>
+    </declare-styleable>
+
+    <declare-styleable name="lbBaseCardView">
+        <!-- Defines the background of card -->
+        <attr format="reference|color" name="cardForeground"/>
+        <!-- Defines the background of card -->
+        <attr format="reference|color" name="cardBackground"/>
+        <!-- Defines the type of the card layout -->
+        <attr format="enum" name="cardType">
+            <!-- A simple card layout with a single layout region. -->
+            <enum name="mainOnly" value="0"/>
+            <!-- A card layout with two layout regions: a main area which is
+                 always visible, and an info region that appears over the lower
+                 area of the main region. -->
+            <enum name="infoOver" value="1"/>
+            <!-- A card layout with two layout regions: a main area which is
+                 always visible, and an info region that appears below the main
+                 region. -->
+            <enum name="infoUnder" value="2"/>
+            <!-- A card layout with three layout regions: a main area which is
+                 always visible, an info region that appears below the main
+                 region, and an extra region that appears below the info region
+                 after a small delay. -->
+            <enum name="infoUnderWithExtra" value="3"/>
+        </attr>
+        <!-- Defines when the info region of a card layout is displayed. -->
+        <attr format="enum" name="infoVisibility">
+            <!-- Always display the info region. -->
+            <enum name="always" value="0"/>
+            <!-- Display the info region only when activated. -->
+            <enum name="activated" value="1"/>
+            <!-- Display the info region only when selected. -->
+            <enum name="selected" value="2"/>
+        </attr>
+        <!-- Defines when the extra region of a card layout is displayed.
+             Depends on infoVisibility, meaning the extra region never displays
+             if the info region is not displayed as well. -->
+        <attr format="enum" name="extraVisibility">
+            <!-- Always display the extra region. -->
+            <enum name="always" value="0"/>
+            <!-- Display the extra region only when activated. -->
+            <enum name="activated" value="1"/>
+            <!-- Display the extra region only when selected. -->
+            <enum name="selected" value="2"/>
+        </attr>
+        <!-- Defines the delay in milliseconds before the selection animation
+             runs for a card layout. -->
+        <attr format="integer" name="selectedAnimationDelay"/>
+        <!-- Defines the duration in milliseconds of the selection animation for
+             a card layout. -->
+        <attr format="integer" name="selectedAnimationDuration"/>
+        <!-- Defines the duration in milliseconds of the activated animation for
+             a card layout. -->
+        <attr format="integer" name="activatedAnimationDuration"/>
+    </declare-styleable>
+    <declare-styleable name="lbBaseCardView_Layout">
+        <!-- The card layout region defined by this element. At most one of
+             element of each type should be specified as an immediate child of
+             the card layout. -->
+        <attr format="enum" name="layout_viewType">
+            <!-- The main region of the card. -->
+            <enum name="main" value="0"/>
+            <!-- The info region of the card. -->
+            <enum name="info" value="1"/>
+            <!-- The extra region of the card. -->
+            <enum name="extra" value="2"/>
+        </attr>
+    </declare-styleable>
+    <declare-styleable name="lbBaseGridView">
+        <!-- Allow DPAD key to navigate out at the front of the View (where position = 0),
+             default is false  -->
+        <attr format="boolean" name="focusOutFront"/>
+        <!-- Allow DPAD key to navigate out at the end of the view, default is false -->
+        <attr format="boolean" name="focusOutEnd"/>
+        <!-- Allow DPAD key to navigate out of first row, for HorizontalGridView, it's the
+             top edge, for VerticalGridView it's the "start" edge.  Default value is true.  -->
+        <attr format="boolean" name="focusOutSideStart"/>
+        <!-- Allow DPAD key to navigate out of last row, for HorizontalGridView, it's the
+             bottom edge, for VerticalGridView it's the "end" edge.  Default value is true.  -->
+        <attr format="boolean" name="focusOutSideEnd"/>
+        <!-- Deprecated, use android:horizontalSpacing -->
+        <attr format="dimension" name="horizontalMargin"/>
+        <!-- Deprecated, use android:verticalSpacing -->
+        <attr format="dimension" name="verticalMargin"/>
+        <!-- Defining space between two items horizontally -->
+        <attr name="android:horizontalSpacing"/>
+        <!-- Defining space between two items vertically -->
+        <attr name="android:verticalSpacing"/>
+        <!-- Defining gravity of child view -->
+        <attr name="android:gravity"/>
+    </declare-styleable>
+    <declare-styleable name="lbHorizontalGridView">
+        <!-- Defining height of each row of HorizontalGridView -->
+        <attr format="dimension" name="rowHeight">
+            <enum name="wrap_content" value="-2"/>
+        </attr>
+        <!-- Defining number of rows -->
+        <attr format="integer" name="numberOfRows"/>
+    </declare-styleable>
+    <declare-styleable name="lbImageCardView">
+        <!-- Deprecated. Use 'imageCardViewInfoAreaStyle' instead. -->
+        <attr format="reference|color" name="infoAreaBackground"/>
+        <!-- Defines what components the ImageCardView will use. -->
+        <attr name="lbImageCardViewType">
+            <flag name="Title" value="1"/>
+            <flag name="Content" value="2"/>
+            <flag name="IconOnRight" value="4"/>
+            <flag name="IconOnLeft" value="8"/>
+            <!-- Only display the main image. -->
+            <flag name="ImageOnly" value="0"/>
+        </attr>
+    </declare-styleable>
+
+
+    <declare-styleable name="lbVerticalGridView">
+        <!-- Defining width of each column of VerticalGridView -->
+        <attr format="dimension" name="columnWidth">
+            <enum name="wrap_content" value="-2"/>
+        </attr>
+        <!-- Defining number of columns -->
+        <attr format="integer" name="numberOfColumns"/>
+    </declare-styleable>
+
+    <dimen name="lb_action_1_line_height">36dp</dimen>
+    <dimen name="lb_action_2_lines_height">56dp</dimen>
+    <dimen name="lb_action_button_corner_radius">2dp</dimen>
+    <dimen name="lb_action_icon_margin">12dp</dimen>
+    <dimen name="lb_action_padding_horizontal">24dp</dimen>
+    <dimen name="lb_action_text_size">16sp</dimen>
+    <dimen name="lb_action_with_icon_padding_end">20dp</dimen>
+    <dimen name="lb_action_with_icon_padding_start">14dp</dimen>
+    <dimen name="lb_basic_card_content_text_size">12sp</dimen>
+    <dimen name="lb_basic_card_info_badge_margin">4dp</dimen>
+    <dimen name="lb_basic_card_info_badge_size">16dp</dimen>
+    <dimen name="lb_basic_card_info_height">52dp</dimen>
+    <dimen name="lb_basic_card_info_height_no_content">34dp</dimen>
+    <dimen name="lb_basic_card_info_padding_bottom">8dp</dimen>
+    <dimen name="lb_basic_card_info_padding_horizontal">11dp</dimen>
+    <dimen name="lb_basic_card_info_padding_top">7dp</dimen>
+    <dimen name="lb_basic_card_info_text_margin">1dp</dimen>
+    <dimen name="lb_basic_card_main_height">188dp</dimen>
+    <dimen name="lb_basic_card_main_width">140dp</dimen>
+    <dimen name="lb_basic_card_title_text_size">14sp</dimen>
+    <item format="integer" name="lb_browse_header_select_duration" type="dimen">150</item>
+    <item format="float" name="lb_browse_header_select_scale" type="dimen">1.2</item>
+
+    <dimen name="lb_guidedstep_slide_ime_distance">-100dp</dimen>
+    <dimen name="lb_list_row_height">224dp</dimen>
+
+    <dimen name="lb_rounded_rect_corner_radius">2dp</dimen>
+    <dimen name="lb_vertical_grid_padding_bottom">87dp</dimen>
+    <item name="lb_view_active_level" type="fraction">0%</item>
+    <item name="lb_view_dimmed_level" type="fraction">60%</item>
+    <item name="lb_focus_animator" type="id"/>
+    <item name="lb_guidedstep_background" type="id"/>
+    <item name="lb_parallax_source" type="id"/>
+    <item name="lb_shadow_impl" type="id"/>
+    <item name="lb_slide_transition_value" type="id"/>
+    <item name="transitionPosition" type="id"/>
+    <integer name="lb_card_activated_animation_duration">150</integer>
+    <integer name="lb_card_selected_animation_delay">400</integer>
+    <integer name="lb_card_selected_animation_duration">150</integer>
+    <integer name="slideEdgeEnd">5</integer>
+    <integer name="slideEdgeStart">3</integer>
+
+
+    <style name="TextAppearance.Leanback.ImageCardView">
+    </style>
+    <style name="TextAppearance.Leanback.ImageCardView.Content">
+        <item name="android:textColor">@color/lb_basic_card_content_text_color</item>
+        <item name="android:textSize">@dimen/lb_basic_card_content_text_size</item>
+    </style>
+    <style name="TextAppearance.Leanback.ImageCardView.Title">
+        <item name="android:textColor">@color/lb_basic_card_title_text_color</item>
+        <item name="android:textSize">@dimen/lb_basic_card_title_text_size</item>
+    </style>
+    <style name="TextAppearance.Leanback.Row.Header" parent="TextAppearance.Leanback.Header">
+    </style>
+    <style name="TextAppearance.Leanback.Row.Header.Description" parent="TextAppearance.Leanback.Header">
+        <item name="android:textSize">@dimen/lb_browse_header_description_text_size</item>
+        <item name="android:textColor">@color/lb_browse_header_description_color</item>
+    </style>
+    <style name="TextAppearance.Leanback.Row.HoverCardDescription" parent="TextAppearance.Leanback">
+        <item name="android:textSize">@dimen/lb_browse_row_hovercard_description_font_size</item>
+    </style>
+    <style name="TextAppearance.Leanback.Row.HoverCardTitle" parent="TextAppearance.Leanback">
+        <item name="android:textSize">@dimen/lb_browse_row_hovercard_title_font_size</item>
+    </style>
+    <style name="TextAppearance.Leanback.SearchTextEdit" parent="TextAppearance.Leanback">
+        <item name="android:textSize">@dimen/lb_search_bar_text_size</item>
+    </style>
+    <style name="TextAppearance.Leanback.Title" parent="TextAppearance.Leanback">
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:textSize">@dimen/lb_browse_title_text_size</item>
+        <item name="android:textColor">@color/lb_browse_title_color</item>
+    </style>
+    <style name="TextAppearance.LeanbackBase" parent="android:TextAppearance.Holo">
+    </style>
+    <style name="Theme.Leanback" parent="Theme.LeanbackBase">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="fallbackBackground">@drawable/lb_fallback_bg</item>
+
+       <!-- Used by MediaRouter -->
+        <item name="isLightTheme">true</item>
+        <item name="selectableItemBackground">@drawable/abc_item_background_holo_light</item>
+        <item name="selectableItemBackgroundBorderless">?attr/selectableItemBackground</item>
+        <item name="dividerVertical">@drawable/abc_list_divider_mtrl_alpha</item>
+        <item name="dividerHorizontal">@drawable/abc_list_divider_mtrl_alpha</item>
+
+        <!-- Action Bar Styles -->
+        <item name="actionBarTabStyle">@style/Widget.AppCompat.Light.ActionBar.TabView</item>
+        <item name="actionBarTabBarStyle">@style/Widget.AppCompat.Light.ActionBar.TabBar</item>
+        <item name="actionBarTabTextStyle">@style/Widget.AppCompat.Light.ActionBar.TabText</item>
+        <item name="actionButtonStyle">@style/Widget.AppCompat.Light.ActionButton</item>
+        <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.Light.ActionButton.Overflow</item>
+        <item name="actionOverflowMenuStyle">@style/Widget.AppCompat.Light.PopupMenu.Overflow</item>
+        <item name="actionBarStyle">@style/Widget.AppCompat.Light.ActionBar.Solid</item>
+        <item name="actionBarSplitStyle">?attr/actionBarStyle</item>
+        <item name="actionBarWidgetTheme">@null</item>
+        <item name="actionBarTheme">@style/ThemeOverlay.AppCompat.ActionBar</item>
+        <item name="actionBarSize">@dimen/abc_action_bar_default_height_material</item>
+        <item name="actionBarDivider">?attr/dividerVertical</item>
+        <item name="actionBarItemBackground">?attr/selectableItemBackgroundBorderless</item>
+        <item name="actionMenuTextAppearance">@style/TextAppearance.AppCompat.Widget.ActionBar.Menu</item>
+        <item name="actionMenuTextColor">?android:attr/textColorPrimaryDisableOnly</item>
+
+        <!-- Color palette -->
+        <item name="colorPrimaryDark">@color/primary_dark_material_light</item>
+        <item name="colorPrimary">@color/primary_material_light</item>
+        <item name="colorAccent">@color/accent_material_light</item>
+        <item name="colorControlNormal">?android:attr/textColorSecondary</item>
+        <item name="colorControlActivated">?attr/colorAccent</item>
+        <item name="colorControlHighlight">@color/ripple_material_light</item>
+        <item name="colorSwitchThumbNormal">@color/switch_thumb_normal_material_light</item>
+        <item name="drawerArrowStyle">@style/Widget.AppCompat.DrawerArrowToggle</item>
+        <item name="switchStyle">@style/Widget.AppCompat.CompoundButton.Switch</item>
+
+        <item name="baseCardViewStyle">@style/Widget.Leanback.BaseCardViewStyle</item>
+        <item name="imageCardViewStyle">@style/Widget.Leanback.ImageCardViewStyle</item>
+        <item name="imageCardViewImageStyle">@style/Widget.Leanback.ImageCardView.ImageStyle</item>
+        <item name="imageCardViewTitleStyle">@style/Widget.Leanback.ImageCardView.TitleStyle</item>
+        <item name="imageCardViewContentStyle">@style/Widget.Leanback.ImageCardView.ContentStyle</item>
+        <item name="imageCardViewBadgeStyle">@style/Widget.Leanback.ImageCardView.BadgeStyle</item>
+        <item name="imageCardViewInfoAreaStyle">@style/Widget.Leanback.ImageCardView.InfoAreaStyle</item>
+
+        <item name="browsePaddingStart">@dimen/lb_browse_padding_start</item>
+        <item name="browsePaddingEnd">@dimen/lb_browse_padding_end</item>
+        <item name="browsePaddingTop">@dimen/lb_browse_padding_top</item>
+        <item name="browsePaddingBottom">@dimen/lb_browse_padding_bottom</item>
+        <item name="browseRowsMarginStart">@dimen/lb_browse_rows_margin_start</item>
+        <item name="browseRowsMarginTop">@dimen/lb_browse_rows_margin_top</item>
+        <item name="browseRowsFadingEdgeLength">@dimen/lb_browse_rows_fading_edge</item>
+
+        <item name="headersVerticalGridStyle">@style/Widget.Leanback.Headers.VerticalGridView</item>
+        <item name="headerStyle">@style/Widget.Leanback.Header</item>
+        <item name="sectionHeaderStyle">@style/Widget.Leanback.Header.Section</item>
+
+        <item name="rowsVerticalGridStyle">@style/Widget.Leanback.Rows.VerticalGridView</item>
+        <item name="rowHorizontalGridStyle">@style/Widget.Leanback.Row.HorizontalGridView</item>
+        <item name="itemsVerticalGridStyle">@style/Widget.Leanback.GridItems.VerticalGridView</item>
+
+        <item name="browseTitleViewLayout">@layout/lb_browse_title</item>
+        <item name="browseTitleTextStyle">@style/Widget.Leanback.Title.Text</item>
+        <item name="browseTitleIconStyle">@style/Widget.Leanback.Title.Icon</item>
+        <item name="browseTitleViewStyle">@style/Widget.Leanback.TitleView</item>
+
+        <item name="rowHeaderStyle">@style/Widget.Leanback.Row.Header</item>
+        <item name="rowHeaderDescriptionStyle">@style/Widget.Leanback.Row.Header.Description</item>
+        <item name="rowHoverCardTitleStyle">@style/Widget.Leanback.Row.HoverCardTitle</item>
+        <item name="rowHoverCardDescriptionStyle">@style/Widget.Leanback.Row.HoverCardDescription</item>
+        <item name="rowHeaderDockStyle">@style/Widget.Leanback.Row.HeaderDock</item>
+
+
+
+        <item name="overlayDimMaskColor">@color/lb_view_dim_mask_color</item>
+        <item name="overlayDimActiveLevel">@fraction/lb_view_active_level</item>
+        <item name="overlayDimDimmedLevel">@fraction/lb_view_dimmed_level</item>
+
+    </style>
+    <style name="Theme.Leanback.VerticalGrid" parent="Theme.Leanback">
+    </style>
+    <style name="Theme.LeanbackBase" parent="android:Theme.Holo.NoActionBar">
+        <item name="playbackProgressPrimaryColor">@color/lb_playback_progress_color_no_theme</item>
+        <item name="playbackProgressSecondaryColor">@color/lb_playback_progress_secondary_color_no_theme</item>
+        <item name="playbackControlsIconHighlightColor">@color/lb_playback_icon_highlight_no_theme</item>
+        <item name="defaultBrandColor">@color/lb_default_brand_color</item>
+        <item name="defaultBrandColorDark">@color/lb_default_brand_color_dark</item>
+
+        <item name="guidedStepTheme">@style/Theme.Leanback.GuidedStep</item>
+    </style>
+    <style name="Widget.Leanback" parent="Widget.LeanbackBase"/>
+    <style name="Widget.Leanback.BaseCardViewStyle">
+        <item name="cardForeground">@drawable/lb_card_foreground</item>
+        <item name="cardBackground">@color/lb_basic_card_bg_color</item>
+    </style>
+    <style name="Widget.Leanback.GridItems"/>
+    <style name="Widget.Leanback.GridItems.VerticalGridView">
+        <item name="android:focusable">true</item>
+        <item name="android:focusableInTouchMode">true</item>
+
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingEnd">10dp</item>
+        <item name="android:paddingBottom">20dp</item>
+        <item name="android:paddingTop">10dp</item>
+
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:horizontalSpacing">@dimen/lb_browse_item_horizontal_spacing</item>
+        <item name="android:verticalSpacing">@dimen/lb_browse_item_vertical_spacing</item>
+        <item name="focusOutFront">true</item>
+    </style>
+    <style name="Widget.Leanback.ImageCardView"/>
+    <style name="Widget.Leanback.ImageCardView.BadgeStyle">
+        <item name="android:id">@id/extra_badge</item>
+        <item name="android:layout_width">@dimen/lb_basic_card_info_badge_size</item>
+        <item name="android:layout_height">@dimen/lb_basic_card_info_badge_size</item>
+        <item name="android:contentDescription">@null</item>
+        <item name="android:scaleType">fitCenter</item>
+    </style>
+    <style name="Widget.Leanback.ImageCardView.ContentStyle">
+        <item name="android:id">@id/content_text</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentStart">true</item>
+        <item name="android:layout_below">@+id/title_text</item>
+        <item name="android:layout_toStartOf">@+id/extra_badge</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.ImageCardView.Content</item>
+    </style>
+    <style name="Widget.Leanback.ImageCardView.ImageStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:adjustViewBounds">true</item>
+        <item name="android:contentDescription">@null</item>
+        <item name="android:scaleType">centerCrop</item>
+        <item name="layout_viewType">main</item>
+    </style>
+    <style name="Widget.Leanback.ImageCardView.InfoAreaStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="layout_viewType">info</item>
+        <item name="android:paddingBottom">@dimen/lb_basic_card_info_padding_bottom</item>
+        <item name="android:paddingEnd">@dimen/lb_basic_card_info_padding_horizontal</item>
+        <item name="android:paddingStart">@dimen/lb_basic_card_info_padding_horizontal</item>
+        <item name="android:paddingTop">@dimen/lb_basic_card_info_padding_top</item>
+        <item name="android:background">@color/lb_basic_card_info_bg_color</item>
+    </style>
+    <style name="Widget.Leanback.ImageCardView.TitleStyle">
+        <item name="android:id">@id/title_text</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:layout_marginBottom">@dimen/lb_basic_card_info_text_margin</item>
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.ImageCardView.Title</item>
+    </style>
+    <style name="Widget.Leanback.ImageCardViewStyle" parent="Widget.Leanback.BaseCardViewStyle">
+        <item name="cardType">infoUnder</item>
+        <item name="infoVisibility">activated</item>
+        <!-- In order to keep backward compatibility we have to create an icon on right. -->
+        <item name="lbImageCardViewType">Title|Content|IconOnRight</item>
+        <!-- Deprecated. Use 'Widget.Leanback.ImageCardView.InfoAreaStyle' instead. -->
+        <item name="infoAreaBackground">@null</item>
+    </style>
+
+    <style name="Widget.Leanback.Row">
+    </style>
+    <style name="Widget.Leanback.Row.Header" parent="Widget.Leanback.Header">
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.Row.Header</item>
+    </style>
+    <style name="Widget.Leanback.Row.Header.Description" parent="Widget.Leanback.Header">
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.Row.Header.Description</item>
+    </style>
+    <style name="Widget.Leanback.Row.HeaderDock">
+        <item name="android:paddingStart">?attr/browsePaddingStart</item>
+    </style>
+    <style name="Widget.Leanback.Row.HorizontalGridView">
+        <item name="android:focusable">true</item>
+        <item name="android:focusableInTouchMode">true</item>
+        <item name="android:paddingStart">?attr/browsePaddingStart</item>
+        <item name="android:paddingEnd">?attr/browsePaddingEnd</item>
+        <item name="android:paddingBottom">@dimen/lb_browse_item_vertical_spacing</item>
+        <item name="android:paddingTop">@dimen/lb_browse_item_vertical_spacing</item>
+        <item name="android:horizontalSpacing">@dimen/lb_browse_item_horizontal_spacing</item>
+        <item name="android:verticalSpacing">@dimen/lb_browse_item_vertical_spacing</item>
+        <item name="focusOutFront">true</item>
+    </style>
+    <style name="Widget.Leanback.Row.HoverCardDescription">
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.Row.HoverCardDescription</item>
+        <item name="android:maxWidth">@dimen/lb_browse_row_hovercard_max_width</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">4</item>
+    </style>
+    <style name="Widget.Leanback.Row.HoverCardTitle">
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:textAppearance">@style/TextAppearance.Leanback.Row.HoverCardTitle</item>
+        <item name="android:maxWidth">@dimen/lb_browse_row_hovercard_max_width</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+    <style name="Widget.Leanback.Rows">
+    </style>
+    <style name="Widget.Leanback.Rows.VerticalGridView">
+        <item name="android:paddingBottom">?attr/browsePaddingBottom</item>
+        <item name="focusOutFront">true</item>
+        <item name="focusOutEnd">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:focusableInTouchMode">true</item>
+    </style>
+</resources>
