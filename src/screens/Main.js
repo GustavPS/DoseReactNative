@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground, FlatList, Animated, ScrollView } from 'react-native';
+import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground, FlatList, Animated, ScrollView, TouchableWithoutFeedback } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { ContentList } from '../components/media/ContentList';
 import { Poster } from '../components/media/Poster';
@@ -14,6 +14,8 @@ export const Main = ({ navigation }) => {
     const [contentInView, setContentInView] = React.useState(false);
     const [popularMovies, setPopularMovies] = React.useState([]);
     const heightAnim = useRef(new Animated.Value(100)).current;
+
+    const flatListRef = useRef();
 
     const contentServer = new ContentServer();
 
@@ -36,7 +38,7 @@ export const Main = ({ navigation }) => {
         }
     ];
 
-    const contentFocused = () => {
+    const contentFocused = (id) => {
         if (!contentInView) {
             setContentInView(true);
             Animated.timing(heightAnim, {
@@ -45,6 +47,14 @@ export const Main = ({ navigation }) => {
                 useNativeDriver: false
             }).start();
         }
+        console.log(id);
+        flatListRef.current.scrollToIndex({
+            animated: 0,
+            index: id - 1,
+            viewOffset: 0,
+            viewPosition: 0.5,
+        })
+        
     }
 
     const splashFocused = () => {
@@ -105,45 +115,23 @@ export const Main = ({ navigation }) => {
             <Splash onFocus={splashFocused} />
 
             <View style={{ height: 300 }}>
-                <ScrollView >
-                    <View setSnapPoint>
-                        <Row
-                            data={test}
-                            attributes={{
-                                width: 135,
-                                height: 200,
-                                hasImageOnly: true,
-                            }}
-                            style={{ width: '100%', height: 250 }}
-                            onFocus={(item) => console.log(item)}
-                            onPress={(item) => console.log(item)}
+                <FlatList
+                    ref={flatListRef}
+                    horizontal={false}
+                    data={categories}
+                    keyExtractor={(item) => item.id.toString()}
+                    snapToInterval={500}
+                    renderItem={({ item }) => (
+                        <TouchableWithoutFeedback>
+                        <ContentList
+                            onFocus={() => contentFocused(item.id)}
+                            title={item.title}
+                            data={popularMovies}
                         />
-                        <Row
-                            data={test}
-                            attributes={{
-                                width: 135,
-                                height: 200,
-                                hasImageOnly: true,
-                            }}
-                            style={{ width: '100%', height: 250 }}
-                            onFocus={(item) => console.log(item)}
-                            onPress={(item) => console.log(item)}
-                        />
-                        <Row
-                            data={test}
-                            attributes={{
-                                width: 135,
-                                height: 200,
-                                hasImageOnly: true,
-                            }}
-                            nextFocusUpId={5}
-                            style={{ width: '100%', height: 250 }}
-                            onFocus={(item) => console.log(item)}
-                            onPress={(item) => console.log(item)}
-                        />
-                    </View>
-
-                </ScrollView>
+                        </TouchableWithoutFeedback>
+                        )
+                    }
+                />
             </View>
         </View>
     );

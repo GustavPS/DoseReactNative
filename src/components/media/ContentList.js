@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground, FlatList, Animated } from 'react-native';
+import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground, FlatList, Animated, TouchableWithoutFeedback } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { Poster } from './Poster';
 const img = { uri: "https://image.tmdb.org/t/p/original//qA3O0xaoesnIAmMWYz0RJyFMc97.jpg" };
@@ -52,7 +52,8 @@ export const ContentList = (props) => {
     )
 
     return (
-        <View style={styles.container}>
+        <TouchableWithoutFeedback>
+            <View style={styles.container}>
                 <Text style={styles.rowTitle}>{props.title}</Text>
                 <FlatList
                     horizontal={true}
@@ -62,7 +63,8 @@ export const ContentList = (props) => {
                     keyExtractor={(item) => item.id}
                     renderItem={renderItem}
                 />
-        </View>
+            </View>
+        </TouchableWithoutFeedback>
     );
 };
 
@@ -77,7 +79,7 @@ const styles = StyleSheet.create({
         fontSize: 20,
         color: 'white',
         textShadowColor: 'rgba(0, 0, 0, 0.75)',
-        textShadowOffset: {width: -1, height: 1},
+        textShadowOffset: { width: -1, height: 1 },
         textShadowRadius: 10,
         marginBottom: 5
     }
