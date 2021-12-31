@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useImperativeHandle } from 'react';
 import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground, TouchableOpacity, Image } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 
@@ -12,14 +12,24 @@ export const TouchableButton = React.forwardRef((props, ref) => {
         image = require('../images/info.png');
     }
 
+    const buttonRef = useRef();
+
+    useImperativeHandle(ref, () => ({
+        focus() {
+            buttonRef.current.setNativeProps({
+                hasTVPreferredFocus: true
+            });
+        }
+    }));
+
     return (
         <TouchableOpacity
             activeOpacity={1.0}
             style={styles.button}
-            onPress={() => console.log("press" + props.count)}
+            onPress={props.onPress}
             onFocus={props.onFocus}
             onBlur={() => {console.log("called onblur")}}
-            ref={ref}
+            ref={buttonRef}
         >
             <Image source={image} style={styles.buttonImage} />
             <Text style={styles.text}>{props.title}</Text>

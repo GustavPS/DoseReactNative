@@ -9,6 +9,7 @@ import Token from '../lib/Token';
 const img = { uri: "https://image.tmdb.org/t/p/original//qA3O0xaoesnIAmMWYz0RJyFMc97.jpg" };
 import { useStateWithCallbackLazy } from 'use-state-with-callback';
 import { Movie } from '../lib/Content/Movie';
+import { useIsFocused } from '@react-navigation/native';
 
 export const Main = ({ navigation }) => {
 
@@ -16,36 +17,24 @@ export const Main = ({ navigation }) => {
     const [popularMovies, setPopularMovies] = React.useState([]);
     const heightAnim = useRef(new Animated.Value(100)).current;
 
+    const [selectedContent, setSelectedContent] = React.useState(null);
+
     const [movies, setMovies] = useStateWithCallbackLazy([]);
+    const isFocused = useIsFocused();
+
+    const timerRef = useRef(null);
 
 
     const moviesStateRef = useRef();
     moviesStateRef.current = movies;
     const flatListRef = useRef();
     const splashRef = useRef();
-
-
-
     const contentServer = new ContentServer();
 
-    const categories = [
-        {
-            id: 1,
-            title: 'Popular Movies',
-        },
-        {
-            id: 2,
-            title: 'Newly addsdfed',
-        },
-        {
-            id: 3,
-            title: 'Newly adsdfasded',
-        },
-        {
-            id: 4,
-            title: 'Neasdfwly added',
-        }
-    ];
+
+    const redirectToLogin = () => {
+        navigation.navigate('Connect');
+    }
 
     useEffect(() => {
         contentServer.initialize().then(() => {
@@ -59,8 +48,8 @@ export const Main = ({ navigation }) => {
                 const movieWatchlistPromise = contentServer.getMovieWatchlist();
                 Promise.all([popularMoviesPromise, movieWatchlistPromise]).then(([popularMovies, movieWatchlist]) => {
                     const moviesToAdd = [];
-                    if (popularMovies.length > 0 ) {
-                        moviesToAdd.push(                        {
+                    if (popularMovies.length > 0) {
+                        moviesToAdd.push({
                             id: 0,
                             title: 'Popular Movies',
                             data: popularMovies,
@@ -88,23 +77,41 @@ export const Main = ({ navigation }) => {
                                     });
                                 }
                             }
-        
-                            console.log(moviesStateRef.current);
+
                             setMovies([...moviesStateRef.current, ...resultingMovies]);
                         });
                     });
+                }).catch(err => {
+                    console.log(err)
+                    redirectToLogin();
                 });
 
 
-            });
+            }).catch(err => {
+                console.log(err);
+                redirectToLogin();
+            })
         });
     }, []);
 
+    useEffect(() => {
+        if (isFocused && splashRef != null) {
+            splashRef.current.forceFocus();
+        }
+    }, [isFocused]);
+
     const contentFocused = (item, rowId) => {
-        console.log(item);
         const movie = new Movie(item.title, item.description, item.id, item.images);
-        console.log("after")
-        splashRef.current.setSplash(movie);
+
+        if (timerRef.current) {
+            clearTimeout(timerRef.current);
+        }
+        timerRef.current = setTimeout(() => {
+            splashRef.current.setSplash(movie);
+        }, 500);
+
+        //splashRef.current.setSplash(movie);
+        setSelectedContent(movie);
         if (!contentInView) {
             setContentInView(true);
             Animated.timing(heightAnim, {
@@ -112,19 +119,29 @@ export const Main = ({ navigation }) => {
                 duration: 200,
                 useNativeDriver: false
             }).start((event) => {
-                moveFlatListToIndex(0, true);
+                moveFlatListToIndex(rowId, true);
             });
         } else {
             moveFlatListToIndex(rowId, true);
+            if (rowId === 0) {
+                splashRef.current.showButtons();
+            } else {
+                splashRef.current.hideButtons();
+            }
         }
     }
 
+    const contentSelected = (item, rowId) => {
+        const movie = new Movie(item.title, item.description, item.id, item.images);
+        splashFocused();
+    };
+
     const moveFlatListToIndex = (index, animated) => {
         flatListRef.current.scrollToIndex({
-            animated: animated ? 1 : 0,
+            animated: 1,
             index: index,
             viewOffset: 0,
-            viewPosition: 0.5,
+            viewPosition: 0.1,
         });
     }
 
@@ -136,13 +153,32 @@ export const Main = ({ navigation }) => {
                 duration: 200,
                 useNativeDriver: false
             }).start();
+            splashRef.current.showButtons();
         }
+    }
+
+    const onPlay = () => {
+        navigation.navigate('Player', {
+            movie: selectedContent,
+            startTime: 0,
+        });
+    }
+
+    const onInfo = () => {
+        navigation.navigate('MovieInfo', {
+            movie: selectedContent,
+        });
     }
 
     return (
         <View style={styles.container}>
 
-            <Splash onFocus={splashFocused} ref={splashRef} />
+            <Splash
+                onFocus={splashFocused}
+                ref={splashRef}
+                onPlay={onPlay}
+                onInfo={onInfo}
+            />
 
             <Animated.View
                 style={[
@@ -156,15 +192,16 @@ export const Main = ({ navigation }) => {
                     ref={flatListRef}
                     horizontal={false}
                     data={movies}
-                    scrollEnabled={false}
+                    scrollEnabled={true}
                     keyExtractor={(item) => item.id.toString()}
-                    snapToInterval={500}
                     renderItem={({ item }) => (
                         <ContentList
                             onFocus={(selected) => contentFocused(selected, item.id)}
+                            onPress={(selected) => contentSelected(selected, item.id)}
                             title={item.title}
                             data={item.data}
-                            style={{marginBottom: 10}}
+                            useBackdrop={false}
+                            style={{ marginBottom: 10 }}
                         />
                     )
                     }

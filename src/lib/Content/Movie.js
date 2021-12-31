@@ -19,6 +19,26 @@ export class Movie {
         return `${this.#baseImagePath}/${size}${this.backdrop}`;
     }
 
+    getLogoPath(size) {
+        if (this.logo && this.logo != "no_image") {
+            return `${this.#baseImagePath}/${size}${this.logo}`;
+        } else {
+            return false;
+        }
+    }
+
+    getTitle() {
+        return this.title;
+    }
+
+    getDescription() {
+        return this.description;
+    }
+
+    getSource(contentServerUrl, token, languageId) {
+        return `${contentServerUrl}/api/video/${this.id}/hls/master?type=movie&audioStream=${languageId}&token=${token}`;
+    }
+
     setActiveImages() {
         for (const image of this.images) {
             if (image.active) {

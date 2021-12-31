@@ -3,37 +3,72 @@ import React, { useEffect, useImperativeHandle, useRef } from 'react';
 import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground, TouchableOpacity, Image } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { TouchableButton } from './TouchableButton';
+import { LinearGradient } from 'expo-linear-gradient';
+import { SplashButtons } from './SplashButtons';
 const img = { uri: "https://image.tmdb.org/t/p/original//qA3O0xaoesnIAmMWYz0RJyFMc97.jpg" };
 
 
 export const Splash = React.forwardRef((props, ref) => {
     const [backdrop, setBackdrop] = React.useState({ uri: "https://image.tmdb.org/t/p/original//qA3O0xaoesnIAmMWYz0RJyFMc97.jpg" });
     const [title, setTitle] = React.useState("Don't Look UP");
+    const [logo, setLogo] = React.useState("");
     const [description, setDescription] = React.useState("Two astronomers go on a media tour to warn humankind of a planet-killing comet hurtling toward Earth. The response from a distracted world: Meh.");
+    const [buttonsVisible, setButtonsVisible] = React.useState(true);
+    const buttonsRef = useRef();
 
     useImperativeHandle(ref, () => ({
         setSplash(content) {
-            console.log("WTF")
-            console.log(content);
             setBackdrop({ uri: content.getBackdropPath('original') });
             setTitle(content.title);
             const description = content.description.length > 100 ? content.description.substring(0, 100) + "..." : content.description;
             setDescription(description);
+            const logo = content.getLogoPath('original');
+            console.log(logo)
+            if (logo) {
+                setLogo(logo);
+            } else {
+                setLogo("");
+            }
+        },
+
+        hideButtons() {
+            setButtonsVisible(false);
+        },
+
+        showButtons() {
+            setButtonsVisible(true);
+        },
+
+        forceFocus() {
+            if (buttonsRef != null) {
+                buttonsRef.current.focus();
+            }
         }
     }));
+
+    useEffect(() => {
+        console.log(buttonsVisible)
+        if (buttonsVisible) {
+            buttonsRef.current.focus();
+        }
+    }, [buttonsVisible]);
 
     return (
         <View style={styles.splash}>
             <ImageBackground source={backdrop} resizeMode="cover" style={styles.background}>
+                <LinearGradient
+                    // Background Linear Gradient
+                    colors={['transparent', 'rgba(2,6,8,1)']}
+                    style={styles.linearGradient}
+                />
                 <View style={styles.logoContainer}>
-                    <Text style={styles.title}>{title}</Text>
+                    {logo != "" ? <Image source={{ uri: logo }} style={styles.logo} /> : <Text style={styles.title}>{title}</Text>}
+
                     <Text style={styles.description}>{description}</Text>
 
-                    <View style={styles.buttonContainer}>
-                        <TouchableButton title="Play" icon="play" onFocus={props.onFocus} />
-                        <TouchableButton title="More info" icon="info" onFocus={props.onFocus} />
-
-                    </View>
+                    {buttonsVisible &&
+                        <SplashButtons ref={buttonsRef} onPlay={props.onPlay} onInfo={props.onInfo} />
+                    }
                 </View>
             </ImageBackground>
         </View>
@@ -47,6 +82,17 @@ const styles = StyleSheet.create({
 
     splash: {
         flex: 1,
+    },
+    linearGradient: {
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+    },
+
+    logo: {
+        width: 500,
+        height: 150,
+        resizeMode: 'contain',
     },
 
     logoContainer: {
@@ -71,11 +117,6 @@ const styles = StyleSheet.create({
         textShadowColor: 'rgba(0, 0, 0, 0.75)',
         textShadowOffset: { width: -1, height: 1 },
         textShadowRadius: 10
-    },
-
-    buttonContainer: {
-        flexDirection: 'row',
-        marginTop: 20,
     },
 
     button: {

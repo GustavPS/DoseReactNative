@@ -18,6 +18,13 @@ export class ContentServer {
         return true;
     }
 
+    async getUrl() {
+        if (this.url == undefined) {
+            this.url = await SecureStore.getItemAsync('contentServerUrl');
+        }
+        return this.url;
+    }
+
     /**
      * Save the selected content server
      * 
@@ -35,6 +42,21 @@ export class ContentServer {
                 SecureStore.setItemAsync('contentServerId', id)
             ]).then(() => {
                 resolve();
+            });
+        });
+    }
+
+    /**
+     * Get the access token for the content server
+     * 
+     * @returns 
+     */
+    getAccessToken() {
+        return new Promise((resolve, reject) => {
+            this.token.validateContentToken().then(token => {
+                resolve(token);
+            }).catch(err => {
+                reject(err);
             });
         });
     }
@@ -132,6 +154,83 @@ export class ContentServer {
                 fetch(url).then(result => {
                     result.json().then(data => {
                         const movies = data.result;
+                        const returnData = [];
+                        for (const movie of movies) {
+                            returnData.push(
+                                new Movie(movie.title, movie.overview, movie.id, movie.images)
+                            );
+                        }
+                        resolve(returnData);
+                    }).catch(err => {
+                        reject(err);
+                    });
+                }).catch(err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+
+    /**
+     * Get the available languages for a movie
+     * 
+     * @param {Movie} movie - The movie to get the languages for
+     * @returns 
+     */
+    getMovieLanguages(movie) {
+        return new Promise((resolve, reject) => {
+            this.token.validateContentToken().then(token => {
+                const url = `${this.url}/api/video/${movie.id}/getLanguages?type=movie&token=${token}`;
+                fetch(url).then(result => {
+                    result.json().then(data => {
+                        resolve(data);
+
+                    }).catch(err => {
+                        reject(err);
+                    });
+                }).catch(err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+
+    /**
+     * Get a movies metadata
+     * 
+     * @param {Movie} movie - The movie to get the metadata for
+     * @returns 
+     */
+    getMovieMetadata(movie) {
+        return new Promise((resolve, reject) => {
+            this.token.validateContentToken().then(token => {
+                const url = `${this.url}/api/movies/${movie.id}?token=${token}`;
+                fetch(url).then(result => {
+                    result.json().then(data => {
+                        resolve(data.result);
+                    }).catch(err => {
+                        reject(err);
+                    });
+                }).catch(err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+
+    /**
+     * Get the recommended movies for a spciecific movie
+     * 
+     * @param {Movie} movie - The movie to get the recommendations for
+     * @returns 
+     */
+    getRecommendedMovies(movie) {
+        return new Promise((resolve, reject) => {
+            this.token.validateContentToken().then(token => {
+                const url = `${this.url}/api/movies/${movie.id}/getRecommended?token=${token}`;
+                fetch(url).then(result => {
+                    result.json().then(data => {
+                        const movies = data.movies;
                         const returnData = [];
                         for (const movie of movies) {
                             returnData.push(

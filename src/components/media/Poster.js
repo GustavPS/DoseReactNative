@@ -20,6 +20,7 @@ export const Poster = React.forwardRef((props, ref) => {
         <TouchableHighlight
             onFocus={onFocus}
             onBlur={() => setFocused(false)}
+            onPress={props.onPress}
         >
             <ImageBackground
                 source={img}
@@ -36,13 +37,13 @@ export const Poster = React.forwardRef((props, ref) => {
 
 const styles = StyleSheet.create({
     poster: {
-        height: 200,
-        width: 135
+        height: 130,
+        width: 75
     },
     
     posterBlurred: {
-        height: 200,
-        width: 135,
+        height: 130,
+        width: 75,
         opacity: 0.3
     }
 });
