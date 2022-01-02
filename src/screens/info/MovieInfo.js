@@ -1,8 +1,9 @@
 import React, { useRef } from 'react';
-import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground, Image, TouchableOpacity } from 'react-native';
+import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground, Image, TouchableOpacity, FlatList } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { ContentServer } from '../../lib/ContentServer';
 import { useEffect } from 'react/cjs/react.development';
+import { ContentList } from '../../components/media/ContentList';
 
 export const MovieInfo = ({ route, navigation }) => {
     const { movie } = route.params;
@@ -16,6 +17,7 @@ export const MovieInfo = ({ route, navigation }) => {
     const [movieMetadata, setMovieMetadata] = React.useState(null);
     const [recommendedMovies, setRecommendedMovies] = React.useState([]);
     const [resumeTime, setResumeTime] = React.useState(false);
+    const [rows, setRows] = React.useState([]);
 
     const loadMovieMetadata = () => {
         contentServer.getMovieMetadata(movie).then(metadata => {
@@ -24,6 +26,7 @@ export const MovieInfo = ({ route, navigation }) => {
             } else {
                 setResumeTime(0);
             }
+            console.log(metadata.actors);
             setMovieMetadata(metadata);
             console.log(metadata.currentTime);
         });
@@ -48,8 +51,8 @@ export const MovieInfo = ({ route, navigation }) => {
         navigation.navigate('Player', { movie: movie, startTime: startTime });
     }
 
-
     useEffect(() => {
+        console.log("Use effect")
         contentServer.initialize().then(() => {
             loadMovieMetadata();
             loadRecommendedMovies();
@@ -109,6 +112,11 @@ export const MovieInfo = ({ route, navigation }) => {
                     {recommendedMovies.length > 0 &&
                         <View style={styles.recommended}>
                             <Text style={styles.recommendedTitle}>Recommended</Text>
+                            <ContentList
+                                data={recommendedMovies}
+                                style={styles.recommendedList}
+                                onPress={(movie) => navigation.push('MovieInfo', { movie: movie })}
+                                useBackdrop={true} />
                         </View>
                     }
 
@@ -170,6 +178,18 @@ const styles = StyleSheet.create({
     description: {
         fontSize: 12,
         width: '70%'
+    },
+
+    recommendedTitle: {
+        fontSize: 20,
+        marginTop: 20,
+        marginBottom: -10,
+        color: 'white',
+        fontWeight: 'bold',
+    },
+
+    recommendedList: {
+        marginLeft: -55
     },
 
 

@@ -248,6 +248,64 @@ export class ContentServer {
         });
     }
 
+    /**
+     * Get the newly added movies
+     * 
+     * @returns 
+     */
+    getNewlyAddedMovies() {
+        return new Promise((resolve, reject) => {
+            this.token.validateContentToken().then(token => {
+                const url = `${this.url}/api/movies/list/?orderby=added_date&token=${token}`;
+                fetch(url).then(result => {
+                    result.json().then(data => {
+                        const movies = data.result;
+                        const returnData = [];
+                        for (const movie of movies) {
+                            returnData.push(
+                                new Movie(movie.title, movie.overview, movie.id, movie.images)
+                            );
+                        }
+                        resolve(returnData);
+                    }).catch(err => {
+                        reject(err);
+                    });
+                }).catch(err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+
+    /**
+     * Get the newly released movies
+     * 
+     * @returns 
+     */
+    getNewlyReleasedMovies() {
+        return new Promise((resolve, reject) => {
+            this.token.validateContentToken().then(token => {
+                const url = `${this.url}/api/movies/list/?orderby=release_date&token=${token}`;
+                fetch(url).then(result => {
+                    result.json().then(data => {
+                        const movies = data.result;
+                        const returnData = [];
+                        for (const movie of movies) {
+                            returnData.push(
+                                new Movie(movie.title, movie.overview, movie.id, movie.images)
+                            );
+                        }
+                        resolve(returnData);
+                    }).catch(err => {
+                        reject(err);
+                    });
+                }).catch(err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+
     requestAccessToServer(ip) {
         return new Promise((resolve, reject) => {
             this.token.validateMainToken().then(token => {

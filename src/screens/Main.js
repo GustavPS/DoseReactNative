@@ -46,7 +46,9 @@ export const Main = ({ navigation }) => {
 
                 const popularMoviesPromise = contentServer.getPopularMovies();
                 const movieWatchlistPromise = contentServer.getMovieWatchlist();
-                Promise.all([popularMoviesPromise, movieWatchlistPromise]).then(([popularMovies, movieWatchlist]) => {
+                const newlyAddedMoviesPromise = contentServer.getNewlyAddedMovies();
+                const newlyReleasedMoviesPromise = contentServer.getNewlyReleasedMovies();
+                Promise.all([popularMoviesPromise, movieWatchlistPromise, newlyAddedMoviesPromise, newlyReleasedMoviesPromise]).then(([popularMovies, movieWatchlist, newlyAddedMovies, newlyReleasedMovies]) => {
                     const moviesToAdd = [];
                     if (popularMovies.length > 0) {
                         moviesToAdd.push({
@@ -58,6 +60,20 @@ export const Main = ({ navigation }) => {
                     if (movieWatchlist.length > 0) {
                         moviesToAdd.push({
                             id: 1,
+                            title: 'New Movies',
+                            data: newlyAddedMovies,
+                        });
+                    }
+                    if (newlyReleasedMovies.length > 0) {
+                        moviesToAdd.push({
+                            id: 2,
+                            title: 'Newly Released Movies',
+                            data: newlyReleasedMovies,
+                        });
+                    }
+                    if (movieWatchlist.length > 0) {
+                        moviesToAdd.push({
+                            id: 3,
                             title: 'Watchlist',
                             data: movieWatchlist,
                         });
@@ -102,7 +118,6 @@ export const Main = ({ navigation }) => {
 
     const contentFocused = (item, rowId) => {
         const movie = new Movie(item.title, item.description, item.id, item.images);
-
         if (timerRef.current) {
             clearTimeout(timerRef.current);
         }
@@ -123,12 +138,8 @@ export const Main = ({ navigation }) => {
             });
         } else {
             moveFlatListToIndex(rowId, true);
-            if (rowId === 0) {
-                splashRef.current.showButtons();
-            } else {
-                splashRef.current.hideButtons();
-            }
         }
+        splashRef.current.hideButtons();
     }
 
     const contentSelected = (item, rowId) => {
@@ -172,7 +183,6 @@ export const Main = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-
             <Splash
                 onFocus={splashFocused}
                 ref={splashRef}

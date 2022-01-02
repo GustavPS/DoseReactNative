@@ -7,23 +7,39 @@ const img = { uri: "https://image.tmdb.org/t/p/original//qA3O0xaoesnIAmMWYz0RJyF
 
 export const ContentList = (props) => {
     const { data, useBackdrop } = props;
+    const width = useBackdrop ? 225 : 75;
+    const height = useBackdrop ? 100 : 130;
+
     const convertDataToRow = (data) => {
         const returnList = [];
         for (const item of data) {
+            const img = useBackdrop ? item.getBackdropPath('w500') : item.getPosterPath('w500');
             returnList.push({
                 id: item.id,
-                cardImageUrl: item.getPosterPath('w500')
+                cardImageUrl: img
             });
         }
         return returnList;
     }
-    const rows = convertDataToRow(data);
 
+    const rows = convertDataToRow(data);
     const getDataFromRowItem = (selected) => {
         for (const item of data) {
             if (item.id == selected.id) {
                 return item;
             }
+        }
+    }
+
+    const onFocus = (selected) => {
+        if (props.onFocus != null) {
+            props.onFocus(getDataFromRowItem(selected));
+        }
+    }
+
+    const onPress = (selected) => {
+        if (props.onPress != null) {
+            props.onPress(getDataFromRowItem(selected));
         }
     }
 
@@ -33,12 +49,12 @@ export const ContentList = (props) => {
             <Row
                 data={rows}
                 attributes={{
-                    width: 75,
-                    height: 130,
+                    width: width,
+                    height: height,
                 }}
                 style={{ width: '100%', height: 150 }}
-                onFocus={(item) => props.onFocus(getDataFromRowItem(item))}
-                onPress={(item) => props.onPress(getDataFromRowItem(item))}
+                onFocus={(item) => onFocus(item)}
+                onPress={(item) => onPress(item)}
             />
         </View>
     );

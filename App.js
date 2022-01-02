@@ -36,6 +36,7 @@ import Token from './src/lib/Token';
 import { ContentServerSetup } from './src/screens/setup/ContentServerSetup';
 import { Player } from './src/screens/Player';
 import { MovieInfo } from './src/screens/info/MovieInfo';
+import { Initial } from './src/screens/Initial';
 
 const Stack = createNativeStackNavigator();
 
@@ -47,40 +48,37 @@ const App: () => Node = () => {
         backgroundColor: Colors.darker
     };
 
-    const token = new Token();
-
-    Promise.all([token.isMainTokenValid(), token.isContentTokenValid()]).then(values => {
-        setSignedIn(values[0] && values[1]);
-    });
-
 
     return (
         <NavigationContainer style={{ backgroundColor: Colors.darker }}>
             <Stack.Navigator
-                initialRouteName="MainServer"
+                initialRouteName="Initial"
                 screenOptions={{
                     cardStyle: backgroundStyle,
                     headerStyle: { elevation: 0 },
                 }}
             >
-                {signedIn &&
-                    <Stack.Screen
-                        name="Main"
-                        component={Main}
-                        options={{
-                            headerShown: false
-                        }}
-                    />
-                }
-                {!signedIn &&
-                    <Stack.Screen
-                        name="MainServer"
-                        component={MainServer}
-                        options={{
-                            headerShown: false,
-                        }}
-                    />
-                }
+                <Stack.Screen
+                    name="Initial"
+                    component={Initial}
+                    options={{
+                        headerShown: false,
+                    }}
+                />
+                <Stack.Screen
+                    name="Main"
+                    component={Main}
+                    options={{
+                        headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="MainServer"
+                    component={MainServer}
+                    options={{
+                        headerShown: false,
+                    }}
+                />
                 <Stack.Screen
                     name="MovieInfo"
                     component={MovieInfo}
@@ -109,7 +107,7 @@ const App: () => Node = () => {
                         headerShown: false
                     }}
                 />
-        </Stack.Navigator>
+            </Stack.Navigator>
         </NavigationContainer >
     );
 };

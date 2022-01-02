@@ -50,11 +50,13 @@ export default class Token {
                     if (valid) {
                         resolve(accessToken);
                     } else {
+                        console.log("Token expired");
                         // TODO: Refresh token
                         reject('Token expired');
                     }
                 });
             } else {
+                console.log("No token");
                 reject('No token');
             }
         });
