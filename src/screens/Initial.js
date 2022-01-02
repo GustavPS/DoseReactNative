@@ -8,18 +8,11 @@ import Token from '../lib/Token';
 export const Initial = ({ navigation }) => {
     useEffect(() => {
         const token = new Token();
-        Promise.all([token.isMainTokenValid(), token.isContentTokenValid()]).then(([mainTokenValid, contentTokenValid]) => {
-            const signedIn = mainTokenValid && contentTokenValid;
-            console.log(`Initial: signedIn: ${signedIn}, mainTokenValid: ${mainTokenValid}, contentTokenValid: ${contentTokenValid}`);
-            if (signedIn) {
-                navigation.navigate('Main');
-            } else {
-                if (mainTokenValid) {
-                    navigation.navigate('Connect');
-                } else {
-                    navigation.navigate('MainServer');
-                }
-            }
+        Promise.all([token.validateMainToken(), token.isContentTokenValid()]).then(([mainToken, contentTokenValid]) => {
+            navigation.navigate('Main');
+        }).catch(err => {
+            console.log(err);
+            navigation.navigate('Connect');
         });
     }, []);
 

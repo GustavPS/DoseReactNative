@@ -38,27 +38,117 @@ export default class Token {
         return parseInt(validTo) > now;
     }
 
+    refreshMainToken() {
+        return new Promise((resolve, reject) => {
+            Promise.all([
+                SecureStore.getItemAsync('accessToken'),
+                SecureStore.getItemAsync('refreshToken'),
+                SecureStore.getItemAsync('validTo'),
+                SecureStore.getItemAsync('mainServerUrl')
+            ]).then(([accessToken, refreshToken, validTo, mainServerUrl]) => {
+                if (refreshToken && accessToken && validTo && mainServerUrl) {
+                    const url = `${mainServerUrl}/api/auth/refreshToken`;
+                    console.log(url)
+                    const data = {
+                        refreshToken: refreshToken,
+                        token: accessToken
+                    };
+                    fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data),
+                    }).then(response => {
+                        response.json().then(json => {
+                            if (json.status == 'success') {
+                                this.saveToken(json.token, json.refreshToken, json.validTo);
+                                console.log('Main token refreshed!');
+                                resolve(json.accessToken);
+                            } else {
+                                reject(json.message);
+                            }
+                        }).catch(err => {
+                            console.log(err);
+                            reject(err);
+                        });
+                    }).catch(error => {
+                        reject(error);
+                    });
+                } else {
+                    reject('No token');
+                }
+            }).catch(err => {
+                console.log(`Couldn't load tokens: ${err}`);
+                reject(err);
+            });
+
+        });
+    }
+
+    refreshContentToken() {
+        return new Promise((resolve, reject) => {
+            Promise.all([
+                this.validateMainToken(),
+                SecureStore.getItemAsync('contentServerUrl')
+            ]).then(([token, contentServerUrl]) => {
+                const url = `${contentServerUrl}/api/auth/validate`
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        token: token
+                    })
+                }).then(result => {
+                    result.json().then(data => {
+                        this.saveContentToken(data.token, data.validTo);
+                        resolve(data.token);
+                    }).catch(err => {
+                        reject(err);
+                    });
+                }).catch(err => {
+                    reject(err);
+                });
+            }).catch(err => {
+                console.log(err);
+                reject(err);
+            });
+
+
+        });
+    }
 
     validateMainToken() {
         return new Promise((resolve, reject) => {
-            const accessToken = SecureStore.getItemAsync('accessToken');
-            const refreshToken = SecureStore.getItemAsync('refreshToken');
-            const validTo = SecureStore.getItemAsync('validTo');
-    
-            if (accessToken && refreshToken && validTo) {
-                this.isMainTokenValid().then(valid => {
-                    if (valid) {
-                        resolve(accessToken);
-                    } else {
-                        console.log("Token expired");
-                        // TODO: Refresh token
-                        reject('Token expired');
-                    }
-                });
-            } else {
-                console.log("No token");
-                reject('No token');
-            }
+            Promise.all([
+                SecureStore.getItemAsync('accessToken'),
+                SecureStore.getItemAsync('refreshToken'),
+                SecureStore.getItemAsync('validTo')
+            ]).then(([accessToken, refreshToken, validTo]) => {
+                if (accessToken && refreshToken && validTo) {
+                    this.isMainTokenValid().then(valid => {
+                        if (valid) {
+                            resolve(accessToken);
+                        } else {
+                            this.refreshMainToken().then(token => {
+                                resolve(token);
+                            }).catch(err => {
+                                console.log(err);
+                                console.log("Refreshing main token failed");
+                                reject(err);
+                            });
+                        }
+                    });
+                } else {
+                    console.log("No token");
+                    reject('No token');
+                }
+            }).catch(err => {
+                console.log(`Couldn't load tokens: ${err}`);
+                reject("No token");
+            });
         });
     }
 
@@ -72,14 +162,20 @@ export default class Token {
                     if (this.isContentTokenValid(validTo)) {
                         resolve(accessToken);
                     } else {
-                        // TODO: Refresh token
-                        reject('Token expired');
+                        this.refreshContentToken().then(token => {
+                            console.log("Content token refreshed!");
+                            resolve(token);
+                        }).catch(err => {
+                            console.log(err);
+                            console.log("Refreshing content token failed");
+                            reject(err);
+                        });
                     }
                 } else {
                     reject('No token');
                 }
             });
-    
+
 
         });
     }
