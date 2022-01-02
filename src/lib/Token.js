@@ -64,7 +64,7 @@ export default class Token {
                             if (json.status == 'success') {
                                 this.saveToken(json.token, json.refreshToken, json.validTo);
                                 console.log('Main token refreshed!');
-                                resolve(json.accessToken);
+                                resolve(json.token);
                             } else {
                                 reject(json.message);
                             }
