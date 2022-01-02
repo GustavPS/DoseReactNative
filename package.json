@@ -10,9 +10,12 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@miblanchard/react-native-slider": "^2.1.0",
+    "@react-native-community/slider": "^4.1.12",
     "@react-navigation/native": "^6.0.6",
     "@react-navigation/native-stack": "^6.2.5",
     "@reactseals/react-native-leanback": "^2.0.3",
+    "async-mutex": "^0.3.2",
     "expo": ">=44.0.0-* <45.0.0",
     "expo-linear-gradient": "~11.0.0",
     "expo-secure-store": "~11.1.0",
@@ -21,6 +24,7 @@
     "react-native-safe-area-context": "^3.3.2",
     "react-native-screens": "^3.10.1",
     "react-native-video": "^5.2.0",
+    "rn-range-slider": "^2.1.1",
     "use-state-with-callback": "^2.0.3"
   },
   "devDependencies": {

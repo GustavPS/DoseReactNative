@@ -1,5 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
 
+import { Mutex } from 'async-mutex';
+const mutex = new Mutex();
 
 export default class Token {
     saveToken(accessToken, refreshToken, validTo) {
@@ -48,7 +50,6 @@ export default class Token {
             ]).then(([accessToken, refreshToken, validTo, mainServerUrl]) => {
                 if (refreshToken && accessToken && validTo && mainServerUrl) {
                     const url = `${mainServerUrl}/api/auth/refreshToken`;
-                    console.log(url)
                     const data = {
                         refreshToken: refreshToken,
                         token: accessToken
@@ -154,29 +155,35 @@ export default class Token {
 
     validateContentToken() {
         return new Promise((resolve, reject) => {
-            Promise.all([
-                SecureStore.getItemAsync('contentAccessToken'),
-                SecureStore.getItemAsync('contentValidTo')
-            ]).then(([accessToken, validTo]) => {
-                if (accessToken && validTo) {
-                    if (this.isContentTokenValid(validTo)) {
-                        resolve(accessToken);
-                    } else {
-                        this.refreshContentToken().then(token => {
-                            console.log("Content token refreshed!");
-                            resolve(token);
-                        }).catch(err => {
-                            console.log(err);
-                            console.log("Refreshing content token failed");
-                            reject(err);
+            mutex.acquire().then(async (release) => {
+                Promise.all([
+                    SecureStore.getItemAsync('contentAccessToken'),
+                    SecureStore.getItemAsync('contentValidTo')
+                ]).then(([accessToken, validTo]) => {
+                    if (accessToken && validTo) {
+                        this.isContentTokenValid(validTo).then(valid => {
+                            if (valid) {
+                                release();
+                                resolve(accessToken);
+                            } else {
+                                this.refreshContentToken().then(token => {
+                                    console.log("Content token refreshed!");
+                                    release();
+                                    resolve(token);
+                                }).catch(err => {
+                                    console.log(err);
+                                    console.log("Refreshing content token failed");
+                                    release();
+                                    reject(err);
+                                });
+                            }
                         });
+                    } else {
+                        release();
+                        reject('No token');
                     }
-                } else {
-                    reject('No token');
-                }
+                });
             });
-
-
         });
     }
 }

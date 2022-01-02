@@ -8,9 +8,9 @@ import Token from '../lib/Token';
 export const Initial = ({ navigation }) => {
     useEffect(() => {
         const token = new Token();
-        Promise.all([token.validateMainToken(), token.isContentTokenValid()]).then(([mainToken, contentTokenValid]) => {
+        token.validateContentToken().then(() => {
             navigation.navigate('Main');
-        }).catch(err => {
+        }).catch(() => {
             console.log(err);
             navigation.navigate('Connect');
         });
