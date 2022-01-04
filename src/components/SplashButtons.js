@@ -1,8 +1,7 @@
 
-import React, { useRef, useImperativeHandle } from 'react';
+import React, { useRef, useImperativeHandle, useEffect } from 'react';
 import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground, TouchableOpacity, Image, findNodeHandle } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
-import { useEffect } from 'react/cjs/react.development';
 
 
 export const SplashButtons = React.forwardRef((props, ref) => {

@@ -1,8 +1,7 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground, Image, TouchableOpacity, FlatList } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { ContentServer } from '../../lib/ContentServer';
-import { useEffect } from 'react/cjs/react.development';
 import { ContentList } from '../../components/media/ContentList';
 
 export const MovieInfo = ({ route, navigation }) => {

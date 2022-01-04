@@ -1,18 +1,23 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import * as SecureStore from 'expo-secure-store';
-import { useEffect } from 'react/cjs/react.development';
 import Token from '../lib/Token';
 
 export const Initial = ({ navigation }) => {
     useEffect(() => {
         const token = new Token();
-        token.validateContentToken().then(() => {
-            navigation.navigate('Main');
-        }).catch(() => {
-            console.log(err);
-            navigation.navigate('Connect');
+        token.isMainTokenStored().then(isMainTokenStored => {
+            if (!isMainTokenStored) {
+                token.validateContentToken().then(() => {
+                    navigation.navigate('Main');
+                }).catch((err) => {
+                    console.log(err);
+                    navigation.navigate('Connect');
+                });
+            } else {
+                navigation.navigate('MainServer');
+            }
         });
     }, []);
 

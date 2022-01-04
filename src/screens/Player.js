@@ -1,28 +1,89 @@
-import React, { useRef } from 'react';
-import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, TouchableWithoutFeedback, TouchableOpacity, FlatList } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import * as SecureStore from 'expo-secure-store';
 import Video from 'react-native-video';
 import { ContentServer } from '../lib/ContentServer';
-import { useEffect } from 'react/cjs/react.development';
 import { PlayerButton } from '../components/Player/PlayerButton';
 import { useStateWithCallbackLazy } from 'use-state-with-callback';
 import Slider from '@react-native-community/slider';
+import { SettingsBox } from '../components/Player/SettingsBox';
+import { TVEventHandler } from 'react-native';
 
 export const Player = ({ route, navigation }) => {
     const { movie, startTime } = route.params;
+    const _tvEventHandler = new TVEventHandler();
     const [videoSource, setVideoSource] = React.useState(null);
     const [languages, setLanguages] = React.useState([]);
     const [playing, setPlaying] = useStateWithCallbackLazy(true);
     const [currentTime, setCurrentTime] = useStateWithCallbackLazy(0);
     const [duration, setDuration] = useStateWithCallbackLazy(0);
+    const [subtitles, setSubtitles] = useStateWithCallbackLazy([]);
+    const [resolutions, setResolutions] = useStateWithCallbackLazy([]);
     const [progress, setProgress] = useStateWithCallbackLazy(0);
+    const [showSubtitleSettingsBox, setShowSubtitleSettingsBox] = useStateWithCallbackLazy(false);
+    const [showResolutionSettingsBox, setShowResolutionSettingsBox] = useStateWithCallbackLazy(false);
+    const [selectedResolution, setSelectedResolution] = useStateWithCallbackLazy(0);
+    const [selectedSubtitle, setSelectedSubtitle] = useStateWithCallbackLazy(-1);
+    const [showSettings, setShowSettings] = useStateWithCallbackLazy(true);
+
+    const showSettingsRef = useRef();
+    const playingRef = useRef();
+    playingRef.current = playing;
+    showSettingsRef.current = showSettings;
+    const hideSettingsTimeout = useRef(null);
     const videoPlayerRef = useRef(null);
     const playButtonRef = useRef(null);
     const subtitleButtonRef = useRef(null);
+    const resolutionButtonRef = useRef(null);
     const videoControlsRef = useRef();
-
     const contentServer = new ContentServer();
+    const HIDE_SETTINGS_TIMEOUT = 8000;
+
+    const _enableTVEventHandler = () => {
+        _tvEventHandler.enable(this, function (cmp, evt) {
+            // On press down
+            if (evt.eventKeyAction == 0) {
+                if (evt && evt.eventType === 'right') {
+                    console.log(evt.eventType);
+                } else if (evt && evt.eventType === 'up') {
+                    console.log(evt.eventType);
+                } else if (evt && evt.eventType === 'left') {
+                    console.log(evt.eventType);
+                } else if (evt && evt.eventType === 'down') {
+                    console.log(evt.eventType);
+                } else if (evt && evt.eventType === 'select') {
+                    if (!showSettingsRef.current) {
+                        if (playingRef.current) {
+                            onPause();
+                        } else {
+                            onPlay();
+                        }
+                    }
+
+                }
+
+                setShowSettings(true);
+                resetHideControlsTimeout();
+            }
+
+        });
+    }
+
+    const resetHideControlsTimeout = () => {
+        if (hideSettingsTimeout.current) {
+            clearTimeout(hideSettingsTimeout.current);
+        }
+        hideSettingsTimeout.current = setTimeout(() => {
+            setShowSettings(false);
+        }, HIDE_SETTINGS_TIMEOUT);
+    }
+
+    const _disableTVEventHandler = () => {
+        if (_tvEventHandler) {
+            _tvEventHandler.disable();
+        }
+    }
 
     const findPreferredLanguage = (languages) => {
         const preferredLanguage = languages.find(language => language.shortName == "eng");
@@ -34,11 +95,28 @@ export const Player = ({ route, navigation }) => {
 
     const onVideoLoad = (data) => {
         videoPlayerRef.current.seek(startTime);
+
+        const subtitlesToAdd = [];
+        for (const subtitle of data.textTracks) {
+            if (subtitle.language != "") {
+                subtitlesToAdd.push(subtitle);
+            }
+        }
+
+        subtitlesToAdd.push({
+            language: "Disabled",
+            index: -1,
+        })
+        console.log(data.videoTracks);
+        setSubtitles(subtitlesToAdd);
+        setResolutions(data.videoTracks);
         setDuration(data.duration);
     }
 
     useEffect(() => {
+        _enableTVEventHandler();
         playButtonRef.current.focus();
+        resetHideControlsTimeout();
 
         contentServer.initialize().then(() => {
             Promise.all([contentServer.getAccessToken(), contentServer.getUrl(), contentServer.getMovieLanguages(movie)]).then(([accessToken, contentServerUrl, availableLanguages]) => {
@@ -60,19 +138,35 @@ export const Player = ({ route, navigation }) => {
             });
         });
 
+        return () => {
+            if (hideSettingsTimeout.current) {
+                clearTimeout(hideSettingsTimeout.current);
+            }
+            _disableTVEventHandler()
+        };
     }, []);
+
+    useEffect(() => {
+        if (showSettings) {
+            playButtonRef.current.focus();
+        }
+    }, [showSettings]);
 
 
     const onPlay = () => {
         setPlaying(true, () => {
-            playButtonRef.current.focus();
+            if (playButtonRef && playButtonRef.current) {
+                playButtonRef.current.focus();
+            }
         });
 
     }
 
     const onPause = () => {
         setPlaying(false, () => {
-            playButtonRef.current.focus();
+            if (playButtonRef && playButtonRef.current) {
+                playButtonRef.current.focus();
+            }
         });
     }
 
@@ -99,6 +193,49 @@ export const Player = ({ route, navigation }) => {
         return hours + ":" + minutes + ":" + seconds;
     }
 
+
+    const toggleSubtitleSettingsBox = () => {
+        setShowResolutionSettingsBox(false);
+        if (showSubtitleSettingsBox) {
+            setShowSubtitleSettingsBox(false, () => {
+                subtitleButtonRef.current.focus();
+            });
+        } else {
+            setShowSubtitleSettingsBox(true);
+        }
+    }
+
+    const toggleResolutionSettingsBox = () => {
+        setShowSubtitleSettingsBox(false);
+        if (showResolutionSettingsBox) {
+            setShowResolutionSettingsBox(false, () => {
+                resolutionButtonRef.current.focus();
+            });
+        } else {
+            setShowResolutionSettingsBox(true);
+        }
+    }
+
+    const changeQuality = (resolution) => {
+        setSelectedResolution(resolution);
+    }
+
+    const changeSubtitle = (index) => {
+        setSelectedSubtitle(index);
+    }
+
+    const onVideoError = (data) => {
+        const timeAtError = currentTime;
+        console.log(`onError at time ${timeAtError}`, data);
+
+        /*
+        // Reset the video
+        setPlaying(false, () => {
+            setPlaying(true);
+            videoPlayerRef.current.seek(timeAtError);
+        });*/
+    }
+
     return (
         <View style={styles.container}>
 
@@ -111,57 +248,110 @@ export const Player = ({ route, navigation }) => {
                     onLoad={onVideoLoad}
                     onProgress={onVideoProgress}
                     onBuffer={() => { console.log("onBuffer") }}
-                    onError={(error) => { console.log("onError", error) }}
+                    onError={onVideoError}
+                    selectedVideoTrack={{
+                        type: "resolution",
+                        value: selectedResolution
+                    }}
+                    selectedTextTrack={{
+                        type: selectedSubtitle != -1 ? "index" : "disabled",
+                        value: selectedSubtitle
+                    }}
                 />
             }
 
-            <TouchableHighlight style={styles.controls}>
-                <View>
-                    <View style={styles.upperControls}>
+            {showSettings &&
+                <TouchableHighlight style={styles.controls}>
+                    <View style={{ flex: 1, flexDirection: 'row' }}>
+                        <View style={styles.upperControls}>
+                        </View>
 
-                    </View>
-
-                    <View style={styles.lowerControls}>
-                        {/* Play button */}
-                        {playing &&
-                            <PlayerButton
-                                ref={playButtonRef}
-                                type="pause"
-                                onPress={onPause}
-                            />
+                        {showSubtitleSettingsBox &&
+                            <SettingsBox
+                                title="Subtitles"
+                            >
+                                <FlatList
+                                    data={subtitles}
+                                    keyExtractor={(item, index) => index.toString()}
+                                    renderItem={({ item }) => (
+                                        <TouchableOpacity
+                                            activeOpacity={1.0}
+                                            style={{ opacity: 0.3 }}
+                                            onPress={() => changeSubtitle(item.index)}
+                                        >
+                                            <Text style={styles.settingTitle}>{item.language}</Text>
+                                        </TouchableOpacity>
+                                    )}
+                                />
+                            </SettingsBox>
                         }
-                        {/* Pause button */}
-                        {!playing &&
-                            <PlayerButton
-                                ref={playButtonRef}
-                                type="play"
-                                onPress={onPlay}
-                            />
+
+                        {showResolutionSettingsBox &&
+                            <SettingsBox
+                                title="Resolutions"
+                            >
+                                <FlatList
+                                    data={resolutions}
+                                    keyExtractor={(item, index) => index.toString()}
+                                    renderItem={({ item }) => (
+                                        <TouchableOpacity
+                                            activeOpacity={1.0}
+                                            style={{ opacity: 0.3 }}
+                                            onPress={() => changeQuality(parseInt(item.height))}
+                                        >
+                                            <Text style={styles.settingTitle}>
+                                                {item.width == 0 && item.height == 0 ? "Directplay" : item.width + "x" + item.height}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    )}
+                                />
+                            </SettingsBox>
                         }
-                        <Text style={styles.progressText}>{`${formatTime(currentTime)}`}</Text>
-                        <Slider
-                            style={styles.slider}
-                            minimumValue={0}
-                            maximumValue={100}
-                            value={progress * 100}
-                            minimumTrackTintColor="#FFFFFF"
-                            maximumTrackTintColor="white"
-                            disabled={true}
-                        />
+                        <View style={styles.lowerControls}>
+                            {/* Play button */}
+                            {playing &&
+                                <PlayerButton
+                                    ref={playButtonRef}
+                                    type="pause"
+                                    onPress={onPause}
+                                />
+                            }
+                            {/* Pause button */}
+                            {!playing &&
+                                <PlayerButton
+                                    ref={playButtonRef}
+                                    type="play"
+                                    onPress={onPlay}
+                                />
+                            }
+                            <Text style={styles.progressText}>{`${formatTime(currentTime)}`}</Text>
+                            <Slider
+                                style={styles.slider}
+                                minimumValue={0}
+                                maximumValue={100}
+                                value={progress * 100}
+                                minimumTrackTintColor="#FFFFFF"
+                                maximumTrackTintColor="white"
+                                disabled={true}
+                            />
 
-                        <Text style={styles.progressText}>{`${formatTime(duration)}`}</Text>
+                            <Text style={styles.progressText}>{`${formatTime(duration)}`}</Text>
 
-                        <PlayerButton
-                            type="subtitle"
-                            ref={subtitleButtonRef}
-                            style={{marginRight: 10}}
-                        />
-                        <PlayerButton
-                            type="settings"
-                        />
+                            <PlayerButton
+                                type="subtitle"
+                                ref={subtitleButtonRef}
+                                style={{ marginRight: 10 }}
+                                onPress={toggleSubtitleSettingsBox}
+                            />
+                            <PlayerButton
+                                type="settings"
+                                onPress={toggleResolutionSettingsBox}
+                                ref={resolutionButtonRef}
+                            />
+                        </View>
                     </View>
-                </View>
-            </TouchableHighlight>
+                </TouchableHighlight>
+            }
         </View>
 
 
@@ -201,6 +391,20 @@ const styles = StyleSheet.create({
     progressText: {
         marginHorizontal: 10,
         alignSelf: "center",
+    },
+
+    settingTitle: {
+        textTransform: 'capitalize',
+        fontSize: 18,
+        textAlign: "center",
+        marginVertical: 2,
+        borderColor: "#01071B",
+        borderWidth: 2,
+        borderLeftWidth: 0,
+        borderRightWidth: 0,
+        padding: 5,
+        borderRadius: 5,
+
     }
 
 })

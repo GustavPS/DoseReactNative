@@ -25,6 +25,12 @@ export default class Token {
         return SecureStore.getItemAsync('mainServerUrl');
     }
 
+    async isMainTokenStored() {
+        const accessToken = await SecureStore.getItemAsync('accessToken');
+        const refreshToken = await SecureStore.getItemAsync('refreshToken');
+        const validTo = await SecureStore.getItemAsync('validTo');
+        return accessToken && refreshToken && validTo;
+    }
 
     async isMainTokenValid() {
         const validTo = await SecureStore.getItemAsync('validTo');
