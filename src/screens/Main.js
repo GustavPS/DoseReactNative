@@ -22,6 +22,7 @@ export const Main = ({ navigation }) => {
     const [movies, setMovies] = useStateWithCallbackLazy([]);
     const isFocused = useIsFocused();
 
+    const backHandlerRef = useRef(null);
     const contentInViewRef = useRef();
     contentInViewRef.current = contentInView;
 
@@ -40,7 +41,6 @@ export const Main = ({ navigation }) => {
     }
 
     const handleBackButton = () => {
-        console.log(contentInView)
         if (!contentInViewRef.current) {
             setContentInView(true);
             Animated.timing(heightAnim, {
@@ -56,7 +56,7 @@ export const Main = ({ navigation }) => {
     }
 
     useEffect(() => {
-        BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+        backHandlerRef.current = BackHandler.addEventListener('hardwareBackPress', handleBackButton);
 
         contentServer.initialize().then(() => {
             contentServer.getGenres().then(genres => {
@@ -143,10 +143,18 @@ export const Main = ({ navigation }) => {
 
         return () => {
             BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+            backHandlerRef.current.remove();
         }
     }, []);
 
     useEffect(() => {
+        if (isFocused) {
+            backHandlerRef.current = BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+        } else {
+            BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+            backHandlerRef.current.remove();
+        }
+
         if (isFocused && splashRef != null) {
             splashRef.current.forceFocus();
         }
