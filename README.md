@@ -4,15 +4,15 @@ This is the Android TV application for [Dose](https://github.com/GustavPS/Dose).
 ## Features
  * Movie support
    * Basic video player support for movies
-   * List popular movies, watchlist and all movie genres on the main screen
+   * List popular movies, watchlist and all movie genres on the main scree
+   * Update watchtime
+   * Quality selection support
+   * Subtitle support
  * Easy login with connect code
 
 ## Future Features
  * TV Show support
- * Subtitle support
- * Quality selection support
  * Audio selection support
- * Update watchtime
  * Easy way to switch content server
 
 ## Future device support
