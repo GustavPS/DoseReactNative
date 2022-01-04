@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, TouchableWithoutFeedback, TouchableOpacity, FlatList } from 'react-native';
+import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, TouchableWithoutFeedback, TouchableOpacity, FlatList, BackHandler } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import * as SecureStore from 'expo-secure-store';
 import Video from 'react-native-video';
@@ -27,11 +27,20 @@ export const Player = ({ route, navigation }) => {
     const [selectedSubtitle, setSelectedSubtitle] = useStateWithCallbackLazy(-1);
     const [showSettings, setShowSettings] = useStateWithCallbackLazy(true);
     const [transcodingGroupId, setTranscodingGroupId] = useStateWithCallbackLazy(null);
+    const [seeking, setSeeking] = useStateWithCallbackLazy(false);
+    const [currentSeekTime, setCurrentSeekTime] = useStateWithCallbackLazy(0);
 
+    const backHandlerRef = useRef(null);
     const showSettingsRef = useRef();
     const playingRef = useRef();
     const transcodingGroupidRef = useRef();
     const currentTimeRef = useRef();
+    const currentSeekTimeRef = useRef();
+    const durationRef = useRef();
+    const seekingRef = useRef();
+    seekingRef.current = seeking;
+    durationRef.current = duration;
+    currentSeekTimeRef.current = currentSeekTime;
     currentTimeRef.current = currentTime;
     transcodingGroupidRef.current = transcodingGroupId;
     playingRef.current = playing;
@@ -51,16 +60,30 @@ export const Player = ({ route, navigation }) => {
         _tvEventHandler.enable(this, function (cmp, evt) {
             // On press down
             if (evt.eventKeyAction == 0) {
-                if (evt && evt.eventType === 'right') {
-                    console.log(evt.eventType);
-                } else if (evt && evt.eventType === 'up') {
-                    console.log(evt.eventType);
-                } else if (evt && evt.eventType === 'left') {
-                    console.log(evt.eventType);
-                } else if (evt && evt.eventType === 'down') {
-                    console.log(evt.eventType);
+                let shouldShowSettings = !seekingRef.current;
+                if (evt && (evt.eventType === 'right' || evt.eventType === 'left')) {
+                    if (!showSettingsRef.current || seekingRef.current) {
+                        shouldShowSettings = false;
+                        setSeeking(true);
+                        setPlaying(false);
+
+                        let changeSeekWith = 0;
+                        if (evt.eventType === 'right') {
+                            changeSeekWith = 10;
+                        } else if (evt.eventType === 'left') {
+                            changeSeekWith = -10;
+                        }
+
+                        const newSeekValue = Math.max(0, Math.min(currentSeekTimeRef.current + changeSeekWith, durationRef.current));
+                        setCurrentSeekTime(newSeekValue);
+                    }
                 } else if (evt && evt.eventType === 'select') {
-                    if (!showSettingsRef.current) {
+                    if (seekingRef.current) {
+                        videoPlayerRef.current.seek(currentSeekTimeRef.current);
+                        setPlaying(true);
+                        setSeeking(false);
+                        setCurrentSeekTime(currentTimeRef.current);
+                    } else if (!showSettingsRef.current) {
                         if (playingRef.current) {
                             onPause();
                         } else {
@@ -69,12 +92,24 @@ export const Player = ({ route, navigation }) => {
                     }
 
                 }
-
-                setShowSettings(true);
+                setShowSettings(shouldShowSettings);
                 resetHideControlsTimeout();
             }
 
         });
+    }
+
+    const handleBackButton = () => {
+        if (showSettingsRef.current) {
+            setShowSettings(false);
+            return true;
+        }
+        if (seekingRef.current) {
+            setSeeking(false);
+            setPlaying(true);
+            return true;
+        }
+        return false;
     }
 
     const resetHideControlsTimeout = () => {
@@ -134,8 +169,11 @@ export const Player = ({ route, navigation }) => {
     }
 
     useEffect(() => {
+        backHandlerRef.current = BackHandler.addEventListener('hardwareBackPress', handleBackButton);
         _enableTVEventHandler();
-        playButtonRef.current.focus();
+        if (playButtonRef.current) {
+            playButtonRef.current.focus();
+        }
         resetHideControlsTimeout();
 
         contentServer.initialize().then(() => {
@@ -168,7 +206,10 @@ export const Player = ({ route, navigation }) => {
             if (pingTimeout.current) {
                 clearTimeout(pingTimeout.current);
             }
-            _disableTVEventHandler()
+            _disableTVEventHandler();
+
+            BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+            backHandlerRef.current.remove();
         };
     }, []);
 
@@ -198,6 +239,7 @@ export const Player = ({ route, navigation }) => {
 
     const onVideoProgress = (progress) => {
         setCurrentTime(progress.currentTime);
+        setCurrentSeekTime(progress.currentTime);
         if (duration > 0) {
             setProgress(progress.currentTime / duration);
         }
@@ -253,19 +295,12 @@ export const Player = ({ route, navigation }) => {
     const onVideoError = (data) => {
         const timeAtError = currentTime;
         console.log(`onError at time ${timeAtError}`, data);
-
-        /*
-        // Reset the video
-        setPlaying(false, () => {
-            setPlaying(true);
-            videoPlayerRef.current.seek(timeAtError);
-        });*/
     }
 
     const updateWatchTime = () => {
         if (playing) {
         }
-    }       
+    }
 
     return (
         <View style={styles.container}>
@@ -382,6 +417,27 @@ export const Player = ({ route, navigation }) => {
                         </View>
                     </View>
                 </TouchableHighlight>
+            }
+            {seeking &&
+                <View style={{flex: 1, flexDirection: 'row', position: 'absolute', bottom: 0, padding: 10}}>
+                    <Text style={styles.progressText}>{`${formatTime(currentSeekTime)}`}</Text>
+                    <Slider
+                        style={[
+                            styles.slider,
+                            {
+                                width: 800
+                            }
+                        ]}
+                        minimumValue={0}
+                        maximumValue={100}
+                        value={duration > 0 ? currentSeekTime / duration * 100 : 0}
+                        minimumTrackTintColor="#FFFFFF"
+                        maximumTrackTintColor="white"
+                        disabled={true}
+                    />
+
+                    <Text style={styles.progressText}>{`${formatTime(duration)}`}</Text>
+                </View>
             }
         </View>
 
