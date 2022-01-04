@@ -161,7 +161,7 @@ export const Main = ({ navigation }) => {
     }, [isFocused]);
 
     const contentFocused = (item, rowId) => {
-        const movie = new Movie(item.title, item.description, item.id, item.images);
+        const movie = new Movie(item.title, item.description, item.id, item.images, item.watchtime, item.runTime);
         if (timerRef.current) {
             clearTimeout(timerRef.current);
         }
@@ -212,10 +212,10 @@ export const Main = ({ navigation }) => {
         }
     }
 
-    const onPlay = () => {
+    const onPlay = (time) => {
         navigation.navigate('Player', {
             movie: selectedContent,
-            startTime: 0,
+            startTime: time,
         });
     }
 

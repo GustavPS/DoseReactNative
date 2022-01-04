@@ -14,11 +14,14 @@ export const Splash = React.forwardRef((props, ref) => {
     const [logo, setLogo] = React.useState("");
     const [description, setDescription] = React.useState("Two astronomers go on a media tour to warn humankind of a planet-killing comet hurtling toward Earth. The response from a distracted world: Meh.");
     const [buttonsVisible, setButtonsVisible] = React.useState(true);
+    const [continueFrom, setContinueFrom] = React.useState(0);
     const buttonsRef = useRef();
 
     useImperativeHandle(ref, () => ({
         setSplash(content) {
             setBackdrop({ uri: content.getBackdropPath('original') });
+            console.log(`Watchtime: ${content.watchtime}`);
+            setContinueFrom(content.watchtime);
             setTitle(content.title);
             const description = content.description.length > 100 ? content.description.substring(0, 100) + "..." : content.description;
             setDescription(description);
@@ -39,6 +42,7 @@ export const Splash = React.forwardRef((props, ref) => {
             setButtonsVisible(true);
         },
 
+
         forceFocus() {
             if (buttonsRef != null) {
                 buttonsRef.current.focus();
@@ -47,7 +51,6 @@ export const Splash = React.forwardRef((props, ref) => {
     }));
 
     useEffect(() => {
-        console.log(buttonsVisible)
         if (buttonsVisible) {
             buttonsRef.current.focus();
         }
@@ -67,7 +70,12 @@ export const Splash = React.forwardRef((props, ref) => {
                     <Text style={styles.description}>{description}</Text>
 
                     {buttonsVisible &&
-                        <SplashButtons ref={buttonsRef} onPlay={props.onPlay} onInfo={props.onInfo} />
+                        <SplashButtons
+                            ref={buttonsRef}
+                            onPlay={props.onPlay}
+                            onInfo={props.onInfo}
+                            continueFrom={continueFrom}
+                        />
                     }
                 </View>
             </ImageBackground>

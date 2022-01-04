@@ -1,23 +1,40 @@
 
-import React, { useRef, useImperativeHandle, useEffect } from 'react';
+import React, { useRef, useImperativeHandle, useEffect, useState } from 'react';
 import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground, TouchableOpacity, Image, findNodeHandle } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { useStateWithCallbackLazy } from 'use-state-with-callback';
 
 
 export const SplashButtons = React.forwardRef((props, ref) => {
     const playImage = require('../images/play.png');
     const infoImage = require('../images/info.png');
+    const [continueFrom, setContinueFrom] = useStateWithCallbackLazy(0);
 
     const playButtonRef = useRef();
+    const resumeButtonRef = useRef();
     const infoButtonRef = useRef();
 
     useImperativeHandle(ref, () => ({
         focus() {
-            playButtonRef.current.setNativeProps({
-                hasTVPreferredFocus: true
-            });
+            if (resumeButtonRef.current) {
+                resumeButtonRef.current.setNativeProps({
+                    hasTVPreferredFocus: true
+                });
+            } else {
+                playButtonRef.current.setNativeProps({
+                    hasTVPreferredFocus: true
+                });
+            }
         }
     }));
+
+    useEffect(() => {
+        setContinueFrom(props.continueFrom, () => {
+            resumeButtonRef.current.setNativeProps({
+                hasTVPreferredFocus: true
+            });
+        });
+    }, [props]);
 
     useEffect(() => {
         playButtonRef.current.setNativeProps({
@@ -28,12 +45,47 @@ export const SplashButtons = React.forwardRef((props, ref) => {
         });
     }, []);
 
+    const secondsToTime = (secs) => {
+        let hours = Math.floor(secs / (60 * 60));
+        let minutes = Math.floor((secs - (hours * 60 * 60)) / 60);
+        let seconds = secs - (hours * 60 * 60) - (minutes * 60);
+
+        if (hours < 10) {
+            hours = "0" + hours;
+        }
+        if (minutes < 10) {
+            minutes = "0" + minutes;
+        }
+        if (seconds < 10) {
+            seconds = "0" + seconds;
+        }
+        return hours + ':' + minutes + ':' + seconds;
+    }
+
+    const onPress = (time) => {
+        props.onPlay(time);
+    }
+
     return (
         <View style={styles.buttonContainer}>
+            {continueFrom > 0 &&
+                <TouchableOpacity
+                    activeOpacity={1.0}
+                    style={styles.button}
+                    onPress={() => onPress(continueFrom)}
+                    onFocus={props.onFocus}
+                    onBlur={() => { console.log("called onblur") }}
+                    ref={resumeButtonRef}
+                >
+                    <Image source={playImage} style={styles.buttonImage} />
+                    <Text style={styles.text}>Resume at {secondsToTime(continueFrom)}</Text>
+                </TouchableOpacity>
+            }
+
             <TouchableOpacity
                 activeOpacity={1.0}
                 style={styles.button}
-                onPress={props.onPlay}
+                onPress={() => onPress(0)}
                 onFocus={props.onFocus}
                 onBlur={() => { console.log("called onblur") }}
                 ref={playButtonRef}
