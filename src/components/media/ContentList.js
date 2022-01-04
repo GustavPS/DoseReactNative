@@ -14,10 +14,16 @@ export const ContentList = (props) => {
         const returnList = [];
         for (const item of data) {
             const img = useBackdrop ? item.getBackdropPath('w500') : item.getPosterPath('w500');
-            returnList.push({
+            const data = {
                 id: item.id,
-                cardImageUrl: img
-            });
+                cardImageUrl: img,
+                displayLiveBadge: false,
+            }
+
+            if (item.watchtime > 0 && item.runTime > 0) {
+                data.progress = Math.round(item.watchtime / item.runTime * 100);
+            }
+            returnList.push(data);
         }
         return returnList;
     }

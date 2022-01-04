@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground, FlatList, Animated, ScrollView, TouchableWithoutFeedback } from 'react-native';
+import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground, FlatList, Animated, ScrollView, TouchableWithoutFeedback, BackHandler } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { ContentList } from '../components/media/ContentList';
 import { Poster } from '../components/media/Poster';
@@ -22,6 +22,9 @@ export const Main = ({ navigation }) => {
     const [movies, setMovies] = useStateWithCallbackLazy([]);
     const isFocused = useIsFocused();
 
+    const contentInViewRef = useRef();
+    contentInViewRef.current = contentInView;
+
     const timerRef = useRef(null);
 
 
@@ -36,7 +39,25 @@ export const Main = ({ navigation }) => {
         navigation.navigate('Connect');
     }
 
+    const handleBackButton = () => {
+        console.log(contentInView)
+        if (!contentInViewRef.current) {
+            setContentInView(true);
+            Animated.timing(heightAnim, {
+                toValue: 300,
+                duration: 200,
+                useNativeDriver: false
+            }).start();
+            splashRef.current.hideButtons();
+            return true;
+        } else {
+            BackHandler.exitApp();
+        }
+    }
+
     useEffect(() => {
+        BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+
         contentServer.initialize().then(() => {
             contentServer.getGenres().then(genres => {
                 const promises = [];
@@ -119,6 +140,10 @@ export const Main = ({ navigation }) => {
                 redirectToLogin();
             })
         });
+
+        return () => {
+            BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+        }
     }, []);
 
     useEffect(() => {

@@ -322,7 +322,7 @@ export class ContentServer {
                         const returnData = [];
                         for (const movie of movies) {
                             returnData.push(
-                                new Movie(movie.title, movie.overview, movie.id, movie.images)
+                                new Movie(movie.title, movie.overview, movie.id, movie.images, movie.watchtime, movie.runtime)
                             );
                         }
                         resolve(returnData);

@@ -2,11 +2,13 @@
 export class Movie {
     #baseImagePath = "https://image.tmdb.org/t/p";
 
-    constructor(title, description, id, images) {
+    constructor(title, description, id, images, watchtime = 0, runTime = 0) {
         this.title = title;
         this.description = description;
         this.id = id;
         this.images = images;
+        this.watchtime = watchtime;
+        this.runTime = runTime;
 
         this.setActiveImages();
     }
