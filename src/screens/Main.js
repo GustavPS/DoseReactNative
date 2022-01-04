@@ -45,43 +45,54 @@ export const Main = ({ navigation }) => {
                 }
 
                 const popularMoviesPromise = contentServer.getPopularMovies();
+                const ongoingMoviesPromise = contentServer.getOngoingMovies();
                 const movieWatchlistPromise = contentServer.getMovieWatchlist();
                 const newlyAddedMoviesPromise = contentServer.getNewlyAddedMovies();
                 const newlyReleasedMoviesPromise = contentServer.getNewlyReleasedMovies();
-                Promise.all([popularMoviesPromise, movieWatchlistPromise, newlyAddedMoviesPromise, newlyReleasedMoviesPromise]).then(([popularMovies, movieWatchlist, newlyAddedMovies, newlyReleasedMovies]) => {
+                Promise.all([popularMoviesPromise, ongoingMoviesPromise, movieWatchlistPromise, newlyAddedMoviesPromise, newlyReleasedMoviesPromise]).then(([popularMovies, ongoingMovies, movieWatchlist, newlyAddedMovies, newlyReleasedMovies]) => {
                     const moviesToAdd = [];
+                    let indx = 0;
                     if (popularMovies.length > 0) {
                         moviesToAdd.push({
-                            id: 0,
+                            id: indx++,
                             title: 'Popular Movies',
                             data: popularMovies,
                         });
                     }
+                    if (ongoingMovies.length > 0) {
+                        moviesToAdd.push({
+                            id: indx++,
+                            title: 'Ongoing Movies',
+                            data: ongoingMovies,
+                        });
+                    }
                     if (movieWatchlist.length > 0) {
                         moviesToAdd.push({
-                            id: 1,
+                            id: indx++,
                             title: 'New Movies',
                             data: newlyAddedMovies,
                         });
                     }
                     if (newlyReleasedMovies.length > 0) {
                         moviesToAdd.push({
-                            id: 2,
+                            id: indx++,
                             title: 'Newly Released Movies',
                             data: newlyReleasedMovies,
                         });
                     }
                     if (movieWatchlist.length > 0) {
                         moviesToAdd.push({
-                            id: 3,
+                            id: indx++,
                             title: 'Watchlist',
                             data: movieWatchlist,
                         });
                     }
+                    console.log(`indx: ${indx}`);
                     setMovies(moviesToAdd, () => {
                         Promise.all(promises).then(results => {
                             const resultingMovies = [];
                             let lastIndex = moviesStateRef.current.length - 1 // NOTE: Might fail if ids are not set correctly
+                            console.log(`lastIndex: ${lastIndex}`);
                             for (let i = 0; i < results.length; i++) {
                                 const genre = genres[i];
                                 const movies = results[i];

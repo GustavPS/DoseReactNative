@@ -307,6 +307,36 @@ export class ContentServer {
     }
 
     /**
+     * Get the ongoing movies for the user
+     * 
+     * @returns 
+     */
+    getOngoingMovies() {
+        return new Promise((resolve, reject) => {
+            this.token.validateContentToken().then(token => {
+                const url = `${this.url}/api/movies/list/ongoing?token=${token}`;
+                console.log(url)
+                fetch(url).then(result => {
+                    result.json().then(data => {
+                        const movies = data.result;
+                        const returnData = [];
+                        for (const movie of movies) {
+                            returnData.push(
+                                new Movie(movie.title, movie.overview, movie.id, movie.images)
+                            );
+                        }
+                        resolve(returnData);
+                    }).catch(err => {
+                        reject(err);
+                    });
+                }).catch(err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+
+    /**
      * Get the transcoding group id from the server
      * 
      * @param {Movie} movie - The movie to get the transcoding group id for 
