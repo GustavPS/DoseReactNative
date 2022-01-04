@@ -306,6 +306,67 @@ export class ContentServer {
         });
     }
 
+    /**
+     * Get the transcoding group id from the server
+     * 
+     * @param {Movie} movie - The movie to get the transcoding group id for 
+     * @returns 
+     */
+    getTranscodingGroupId(movie) {
+        return new Promise((resolve, reject) => {
+            this.token.validateContentToken().then(token => {
+                const url = `${this.url}/api/video/${movie.id}/hls/getTranscodingGroupId?token=${token}`;
+                fetch(url).then(result => {
+                    result.json().then(data => {
+                        if (data.found) {
+                            resolve(data.group);
+                        } else {
+                            reject("Not found");
+                        }
+                    }).catch(err => {
+                        reject(err);
+                    });
+                }).catch(err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+
+    /**
+     * Update the watchtime for a movie
+     * 
+     * @param {Movie} movie - The movie to update the watchtime for 
+     * @param {*} time  - The time to update the watchtime to
+     * @returns 
+     */
+    updateWatchtime(movie, groupId, time, videoDuration) {
+        return new Promise((resolve, reject) => {
+            this.token.validateContentToken().then(token => {
+                const url = `${this.url}/api/video/${movie.id}/currenttime/set?type=movie&time=${time}&videoDuration=${videoDuration}&group=${groupId}&token=${token}`;
+                fetch(url).then(() => {
+                    resolve();
+                }).catch(err => {
+                    console.log("Error updating watchtime", err);
+                    reject(err);
+                });
+            });
+        });
+    }
+
+    ping(movie, transcodingGroupId) {
+        return new Promise((resolve, reject) => {
+            this.token.validateContentToken().then(token => {
+                const url = `${this.url}/api/video/${movie.id}/hls/ping?group=${transcodingGroupId}&token=${token}`;
+                fetch(url).then(() => {
+                    resolve();
+                }).catch(err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+
     requestAccessToServer(ip) {
         return new Promise((resolve, reject) => {
             this.token.validateMainToken().then(token => {

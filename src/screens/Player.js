@@ -26,12 +26,19 @@ export const Player = ({ route, navigation }) => {
     const [selectedResolution, setSelectedResolution] = useStateWithCallbackLazy(0);
     const [selectedSubtitle, setSelectedSubtitle] = useStateWithCallbackLazy(-1);
     const [showSettings, setShowSettings] = useStateWithCallbackLazy(true);
+    const [transcodingGroupId, setTranscodingGroupId] = useStateWithCallbackLazy(null);
 
     const showSettingsRef = useRef();
     const playingRef = useRef();
+    const transcodingGroupidRef = useRef();
+    const currentTimeRef = useRef();
+    currentTimeRef.current = currentTime;
+    transcodingGroupidRef.current = transcodingGroupId;
     playingRef.current = playing;
     showSettingsRef.current = showSettings;
     const hideSettingsTimeout = useRef(null);
+    const updateWatchtimeTimeout = useRef(null);
+    const pingTimeout = useRef(null);
     const videoPlayerRef = useRef(null);
     const playButtonRef = useRef(null);
     const subtitleButtonRef = useRef(null);
@@ -94,6 +101,19 @@ export const Player = ({ route, navigation }) => {
     }
 
     const onVideoLoad = (data) => {
+        contentServer.initialize().then(() => {
+            contentServer.getTranscodingGroupId(movie).then(transcodingGroupId => {
+                setTranscodingGroupId(transcodingGroupId);
+
+                updateWatchtimeTimeout.current = setInterval(() => {
+                    contentServer.updateWatchtime(movie, transcodingGroupId, currentTimeRef.current, data.duration);
+                }, 5000);
+
+                pingTimeout.current = setInterval(() => {
+                    contentServer.ping(movie, transcodingGroupId);
+                }, 10000);
+            });
+        });
         videoPlayerRef.current.seek(startTime);
 
         const subtitlesToAdd = [];
@@ -141,6 +161,12 @@ export const Player = ({ route, navigation }) => {
         return () => {
             if (hideSettingsTimeout.current) {
                 clearTimeout(hideSettingsTimeout.current);
+            }
+            if (updateWatchtimeTimeout.current) {
+                clearTimeout(updateWatchtimeTimeout.current);
+            }
+            if (pingTimeout.current) {
+                clearTimeout(pingTimeout.current);
             }
             _disableTVEventHandler()
         };
@@ -235,6 +261,11 @@ export const Player = ({ route, navigation }) => {
             videoPlayerRef.current.seek(timeAtError);
         });*/
     }
+
+    const updateWatchTime = () => {
+        if (playing) {
+        }
+    }       
 
     return (
         <View style={styles.container}>

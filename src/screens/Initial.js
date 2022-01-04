@@ -8,7 +8,7 @@ export const Initial = ({ navigation }) => {
     useEffect(() => {
         const token = new Token();
         token.isMainTokenStored().then(isMainTokenStored => {
-            if (!isMainTokenStored) {
+            if (isMainTokenStored) {
                 token.validateContentToken().then(() => {
                     navigation.navigate('Main');
                 }).catch((err) => {
