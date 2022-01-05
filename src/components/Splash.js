@@ -11,13 +11,11 @@ const img = { uri: "https://image.tmdb.org/t/p/original//qA3O0xaoesnIAmMWYz0RJyF
 
 
 export const Splash = React.forwardRef((props, ref) => {
-    const [backdrop, setBackdrop] = React.useState({ uri: "https://image.tmdb.org/t/p/original//qA3O0xaoesnIAmMWYz0RJyFMc97.jpg" });
-    const [title, setTitle] = React.useState("Don't Look UP");
+    const [backdrop, setBackdrop] = React.useState({});
+    const [title, setTitle] = React.useState("");
     const [logo, setLogo] = React.useState("");
-    const [description, setDescription] = React.useState("Two astronomers go on a media tour to warn humankind of a planet-killing comet hurtling toward Earth. The response from a distracted world: Meh.");
+    const [description, setDescription] = React.useState("");
     const [buttonsVisible, setButtonsVisible] = React.useState(true);
-    const [continueFrom, setContinueFrom] = React.useState(0);
-    const [resumeEpisodeName, setResumeEpisodeName] = React.useState("");
     const [content, setContent] = React.useState(null);
     const buttonsRef = useRef();
 
@@ -25,13 +23,6 @@ export const Splash = React.forwardRef((props, ref) => {
         setSplash(content) {
             setContent(content);
             setBackdrop({ uri: content.getBackdropPath('original') });
-            console.log(`isShow: ${content.isShow()}, isMovie: ${content.isMovie()}`);
-
-            /*
-            if (content.isMovie()) {
-                setContinueFrom(content.watchtime);
-            }
-            */
             setTitle(content.title);
             const description = content.description.length > 100 ? content.description.substring(0, 100) + "..." : content.description;
             setDescription(description);

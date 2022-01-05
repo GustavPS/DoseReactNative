@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground, FlatList, Animated, ScrollView, TouchableWithoutFeedback, BackHandler } from 'react-native';
+import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground, FlatList, Animated, ScrollView, TouchableWithoutFeedback, BackHandler, Image } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { ContentList } from '../components/media/ContentList';
 import { Poster } from '../components/media/Poster';
@@ -18,12 +18,11 @@ export const Main = ({ navigation }) => {
     const [contentInView, setContentInView] = React.useState(false);
     const [popularMovies, setPopularMovies] = React.useState([]);
     const heightAnim = useRef(new Animated.Value(100)).current;
-
-    const [selectedContent, setSelectedContent] = React.useState(null);
-
+    const [selectedContent, setSelectedContent] = useStateWithCallbackLazy(null);
     const [movies, setMovies] = useStateWithCallbackLazy([]);
-    const isFocused = useIsFocused();
+    const [loading, setLoading] = useStateWithCallbackLazy(true);
 
+    const isFocused = useIsFocused();
     const backHandlerRef = useRef(null);
     const contentInViewRef = useRef();
     contentInViewRef.current = contentInView;
@@ -134,7 +133,14 @@ export const Main = ({ navigation }) => {
                                 }
                             }
 
-                            setMovies([...moviesStateRef.current, ...resultingMovies]);
+                            setMovies([...moviesStateRef.current, ...resultingMovies], () => {
+                                const randomIndx = Math.floor(Math.random() * moviesStateRef.current.length)
+                                const initialSelectedItem = moviesStateRef.current[randomIndx].data[Math.floor(Math.random() * moviesStateRef.current[randomIndx].data.length)];
+                                splashRef.current.setSplash(initialSelectedItem);
+                                setSelectedContent(initialSelectedItem, () => {
+                                    setLoading(false);
+                                });
+                            });
                         });
                     });
                 }).catch(err => {
@@ -270,6 +276,10 @@ export const Main = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
+            {loading &&
+                <Image source={require('../images/loading.gif')} style={styles.loading} />
+            }
+
             <Splash
                 onFocus={splashFocused}
                 ref={splashRef}
@@ -313,6 +323,16 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         backgroundColor: "#020608"
+    },
+
+    loading: {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: [{ translateX: -50 }, { translateY: -50 }],
+        zIndex: 10,
+        width: 100,
+        height: 100
     },
 
     background: {

@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, TouchableWithoutFeedback, TouchableOpacity, FlatList, BackHandler } from 'react-native';
+import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, TouchableWithoutFeedback, TouchableOpacity, FlatList, BackHandler, Image } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import * as SecureStore from 'expo-secure-store';
 import Video from 'react-native-video';
@@ -25,10 +25,11 @@ export const Player = ({ route, navigation }) => {
     const [showResolutionSettingsBox, setShowResolutionSettingsBox] = useStateWithCallbackLazy(false);
     const [selectedResolution, setSelectedResolution] = useStateWithCallbackLazy(0);
     const [selectedSubtitle, setSelectedSubtitle] = useStateWithCallbackLazy(-1);
-    const [showSettings, setShowSettings] = useStateWithCallbackLazy(true);
+    const [showSettings, setShowSettings] = useStateWithCallbackLazy(false);
     const [transcodingGroupId, setTranscodingGroupId] = useStateWithCallbackLazy(null);
     const [seeking, setSeeking] = useStateWithCallbackLazy(false);
     const [currentSeekTime, setCurrentSeekTime] = useStateWithCallbackLazy(0);
+    const [loading, setLoading] = useStateWithCallbackLazy(true);
 
     const backHandlerRef = useRef(null);
     const showSettingsRef = useRef();
@@ -38,6 +39,8 @@ export const Player = ({ route, navigation }) => {
     const currentSeekTimeRef = useRef();
     const durationRef = useRef();
     const seekingRef = useRef();
+    const loadingRef = useRef();
+    loadingRef.current = loading;
     seekingRef.current = seeking;
     durationRef.current = duration;
     currentSeekTimeRef.current = currentSeekTime;
@@ -60,7 +63,10 @@ export const Player = ({ route, navigation }) => {
         _tvEventHandler.enable(this, function (cmp, evt) {
             // On press down
             if (evt.eventKeyAction == 0) {
-                let shouldShowSettings = !seekingRef.current;
+                // Don't show controls if we're seeking and if the video is doing the initial load
+                let shouldShowSettings = !seekingRef.current && (!loadingRef.current || durationRef.current > 0);
+
+
                 if (evt && (evt.eventType === 'right' || evt.eventType === 'left')) {
                     if (!showSettingsRef.current || seekingRef.current) {
                         shouldShowSettings = false;
@@ -166,6 +172,7 @@ export const Player = ({ route, navigation }) => {
         setSubtitles(subtitlesToAdd);
         setResolutions(data.videoTracks);
         setDuration(data.duration);
+        setLoading(false);
     }
 
     useEffect(() => {
@@ -240,6 +247,7 @@ export const Player = ({ route, navigation }) => {
     const onVideoProgress = (progress) => {
         setCurrentTime(progress.currentTime);
         setCurrentSeekTime(progress.currentTime);
+        setLoading(false);
         if (duration > 0) {
             setProgress(progress.currentTime / duration);
         }
@@ -305,6 +313,10 @@ export const Player = ({ route, navigation }) => {
     return (
         <View style={styles.container}>
 
+            {loading &&
+                <Image source={require('../images/loading.gif')} style={styles.loading} />
+            }
+
             {videoSource != null &&
                 <Video
                     ref={videoPlayerRef}
@@ -313,7 +325,7 @@ export const Player = ({ route, navigation }) => {
                     paused={!playing}
                     onLoad={onVideoLoad}
                     onProgress={onVideoProgress}
-                    onBuffer={() => { console.log("onBuffer") }}
+                    onBuffer={() => { setLoading(true) }}
                     onError={onVideoError}
                     selectedVideoTrack={{
                         type: "resolution",
@@ -326,7 +338,7 @@ export const Player = ({ route, navigation }) => {
                 />
             }
 
-            {showSettings &&
+            {showSettings && (!loading || duration > 0) &&
                 <TouchableHighlight style={styles.controls}>
                     <View style={{ flex: 1, flexDirection: 'row' }}>
                         <View style={styles.upperControls}>
@@ -419,7 +431,7 @@ export const Player = ({ route, navigation }) => {
                 </TouchableHighlight>
             }
             {seeking &&
-                <View style={{flex: 1, flexDirection: 'row', position: 'absolute', bottom: 0, padding: 10}}>
+                <View style={{ flex: 1, flexDirection: 'row', position: 'absolute', bottom: 0, padding: 10 }}>
                     <Text style={styles.progressText}>{`${formatTime(currentSeekTime)}`}</Text>
                     <Slider
                         style={[
@@ -448,6 +460,16 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: 'black',
+    },
+
+    loading: {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: [{ translateX: -50 }, { translateY: -50 }],
+        zIndex: 10,
+        width: 100,
+        height: 100
     },
 
     videoPlayer: {
