@@ -1,5 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 import { Movie } from './Content/Movie';
+import { Show } from './Content/Show';
 import Token from './Token';
 
 export class ContentServer {
@@ -172,15 +173,16 @@ export class ContentServer {
     }
 
     /**
-     * Get the available languages for a movie
+     * Get the available languages for a content
      * 
-     * @param {Movie} movie - The movie to get the languages for
+     * @param {Base} content - The content to get the languages for
      * @returns 
      */
-    getMovieLanguages(movie) {
+    getContentLanguages(content) {
         return new Promise((resolve, reject) => {
+            const type = content.isMovie() ? 'movie' : 'serie';
             this.token.validateContentToken().then(token => {
-                const url = `${this.url}/api/video/${movie.id}/getLanguages?type=movie&token=${token}`;
+                const url = `${this.url}/api/video/${content.id}/getLanguages?type=${type}&token=${token}`;
                 fetch(url).then(result => {
                     result.json().then(data => {
                         resolve(data);
@@ -337,15 +339,106 @@ export class ContentServer {
     }
 
     /**
-     * Get the transcoding group id from the server
+     * Get the newly added TV Shows
      * 
-     * @param {Movie} movie - The movie to get the transcoding group id for 
      * @returns 
      */
-    getTranscodingGroupId(movie) {
+    getNewlyAddedShows() {
         return new Promise((resolve, reject) => {
             this.token.validateContentToken().then(token => {
-                const url = `${this.url}/api/video/${movie.id}/hls/getTranscodingGroupId?token=${token}`;
+                const url = `${this.url}/api/series/list/?orderby=added_date&token=${token}`;
+                fetch(url).then(result => {
+                    result.json().then(data => {
+                        const shows = data.result;
+                        const returnData = [];
+                        for (const show of shows) {
+                            const showToAdd = new Show(show.title, show.overview, show.id, show.images);
+                            if (show.nextEpisodeForUser != null) {
+                                showToAdd.setNextEpisode(show.nextEpisodeForUser.episode, show.nextEpisodeForUser.episode_id, show.nextEpisodeForUser.season_number);
+                            }
+                            if (show.episodeProgress != null) {
+                                showToAdd.setResumeEpisode(show.episodeProgress.episode, show.episodeProgress.episode_id, show.episodeProgress.season_number, show.episodeProgress.time);
+                            }
+                            returnData.push(showToAdd);
+                        }
+                        resolve(returnData);
+                    }).catch(err => {
+                        reject(err);
+                    });
+                }).catch(err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+
+    /**
+     * Get the show metadata
+     * 
+     * @param {Show} show - The show to get the metadata for
+     * @returns 
+     */
+    getShowMetadata(show) {
+        return new Promise((resolve, reject) => {
+            this.token.validateContentToken().then(token => {
+                const url = `${this.url}/api/series/${show.id}?token=${token}`;
+                fetch(url).then(result => {
+                    result.json().then(data => {
+                        resolve(data.result);
+                    }).catch(err => {
+                        reject(err);
+                    });
+                }).catch(err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+
+    getSeasonMetadata(season, show) {
+        return new Promise((resolve, reject) => {
+            this.token.validateContentToken().then(token => {
+                const url = `${this.url}/api/series/${show.id}/season/${season.id}?token=${token}`;
+                fetch(url).then(result => {
+                    result.json().then(data => {
+                        resolve(data.result);
+                    }).catch(err => {
+                        reject(err);
+                    });
+                }).catch(err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+
+    getEpisodeMetadata(episodeNumber, showId, seasonNumber) {
+        return new Promise((resolve, reject) => {
+            this.token.validateContentToken().then(token => {
+                const url = `${this.url}/api/series/${showId}/season/${seasonNumber}/episode/${episodeNumber}?token=${token}`;
+                fetch(url).then(result => {
+                    result.json().then(data => {
+                        resolve(data.result);
+                    }).catch(err => {
+                        reject(err);
+                    });
+                }).catch(err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+
+    /**
+     * Get the transcoding group id from the server
+     * 
+     * @param {Base} content - The content to get the transcoding group id for 
+     * @returns 
+     */
+    getTranscodingGroupId(content) {
+        return new Promise((resolve, reject) => {
+            this.token.validateContentToken().then(token => {
+                const url = `${this.url}/api/video/${content.id}/hls/getTranscodingGroupId?token=${token}`;
                 fetch(url).then(result => {
                     result.json().then(data => {
                         if (data.found) {
@@ -366,14 +459,15 @@ export class ContentServer {
     /**
      * Update the watchtime for a movie
      * 
-     * @param {Movie} movie - The movie to update the watchtime for 
+     * @param {Base} content - The content to update the watchtime for 
      * @param {*} time  - The time to update the watchtime to
      * @returns 
      */
-    updateWatchtime(movie, groupId, time, videoDuration) {
+    updateWatchtime(content, groupId, time, videoDuration) {
         return new Promise((resolve, reject) => {
+            const type = content.isMovie() ? "movie" : "serie";
             this.token.validateContentToken().then(token => {
-                const url = `${this.url}/api/video/${movie.id}/currenttime/set?type=movie&time=${time}&videoDuration=${videoDuration}&group=${groupId}&token=${token}`;
+                const url = `${this.url}/api/video/${content.id}/currenttime/set?type=${type}&time=${time}&videoDuration=${videoDuration}&group=${groupId}&token=${token}`;
                 fetch(url).then(() => {
                     resolve();
                 }).catch(err => {
@@ -384,10 +478,10 @@ export class ContentServer {
         });
     }
 
-    ping(movie, transcodingGroupId) {
+    ping(content, transcodingGroupId) {
         return new Promise((resolve, reject) => {
             this.token.validateContentToken().then(token => {
-                const url = `${this.url}/api/video/${movie.id}/hls/ping?group=${transcodingGroupId}&token=${token}`;
+                const url = `${this.url}/api/video/${content.id}/hls/ping?group=${transcodingGroupId}&token=${token}`;
                 fetch(url).then(() => {
                     resolve();
                 }).catch(err => {

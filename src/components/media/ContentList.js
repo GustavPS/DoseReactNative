@@ -6,9 +6,13 @@ const img = { uri: "https://image.tmdb.org/t/p/original//qA3O0xaoesnIAmMWYz0RJyF
 
 
 export const ContentList = (props) => {
-    const { data, useBackdrop } = props;
+    const { data, useBackdrop, showTitle, showDescription } = props;
     const width = useBackdrop ? 225 : 75;
     const height = useBackdrop ? 100 : 130;
+    let styleHeight = useBackdrop ? 180 : 150;
+    if (showDescription) {
+        styleHeight += 50; 
+    }
 
     const convertDataToRow = (data) => {
         const returnList = [];
@@ -19,7 +23,12 @@ export const ContentList = (props) => {
                 cardImageUrl: img,
                 displayLiveBadge: false,
             }
-
+            if (showTitle) {
+                data.title = item.getTitle();
+            }
+            if (showDescription) {
+                data.description = item.getDescription();
+            }
             if (item.watchtime > 0 && item.runTime > 0) {
                 data.progress = Math.round(item.watchtime / item.runTime * 100);
             }
@@ -58,7 +67,7 @@ export const ContentList = (props) => {
                     width: width,
                     height: height,
                 }}
-                style={{ width: '100%', height: 150 }}
+                style={{ width: '100%', height: styleHeight }}
                 onFocus={(item) => onFocus(item)}
                 onPress={(item) => onPress(item)}
             />

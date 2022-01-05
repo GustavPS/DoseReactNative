@@ -42,8 +42,17 @@ export const MovieInfo = ({ route, navigation }) => {
         let hours = Math.floor(secs / (60 * 60));
         let minutes = Math.floor((secs - (hours * 60 * 60)) / 60);
         let seconds = secs - (hours * 60 * 60) - (minutes * 60);
-        const time = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
-        return time;
+
+        if (hours < 10) {
+            hours = "0" + hours;
+        }
+        if (minutes < 10) {
+            minutes = "0" + minutes;
+        }
+        if (seconds < 10) {
+            seconds = "0" + seconds;
+        }
+        return `${hours > 0 ? hours + ':' : ''}${minutes}:${seconds}`;
     }
 
     const onPlay = (startTime) => {

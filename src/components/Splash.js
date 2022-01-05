@@ -5,6 +5,8 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { TouchableButton } from './TouchableButton';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SplashButtons } from './SplashButtons';
+import { MOVIE_TYPE, SHOW_TYPE } from '../lib/Content/Base';
+
 const img = { uri: "https://image.tmdb.org/t/p/original//qA3O0xaoesnIAmMWYz0RJyFMc97.jpg" };
 
 
@@ -15,18 +17,25 @@ export const Splash = React.forwardRef((props, ref) => {
     const [description, setDescription] = React.useState("Two astronomers go on a media tour to warn humankind of a planet-killing comet hurtling toward Earth. The response from a distracted world: Meh.");
     const [buttonsVisible, setButtonsVisible] = React.useState(true);
     const [continueFrom, setContinueFrom] = React.useState(0);
+    const [resumeEpisodeName, setResumeEpisodeName] = React.useState("");
+    const [content, setContent] = React.useState(null);
     const buttonsRef = useRef();
 
     useImperativeHandle(ref, () => ({
         setSplash(content) {
+            setContent(content);
             setBackdrop({ uri: content.getBackdropPath('original') });
-            console.log(`Watchtime: ${content.watchtime}`);
-            setContinueFrom(content.watchtime);
+            console.log(`isShow: ${content.isShow()}, isMovie: ${content.isMovie()}`);
+
+            /*
+            if (content.isMovie()) {
+                setContinueFrom(content.watchtime);
+            }
+            */
             setTitle(content.title);
             const description = content.description.length > 100 ? content.description.substring(0, 100) + "..." : content.description;
             setDescription(description);
             const logo = content.getLogoPath('original');
-            console.log(logo)
             if (logo) {
                 setLogo(logo);
             } else {
@@ -44,6 +53,7 @@ export const Splash = React.forwardRef((props, ref) => {
 
 
         forceFocus() {
+            console.log("FORCING FOCUS")
             if (buttonsRef != null) {
                 buttonsRef.current.focus();
             }
@@ -74,7 +84,7 @@ export const Splash = React.forwardRef((props, ref) => {
                             ref={buttonsRef}
                             onPlay={props.onPlay}
                             onInfo={props.onInfo}
-                            continueFrom={continueFrom}
+                            content={content}
                         />
                     }
                 </View>

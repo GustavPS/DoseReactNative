@@ -8,41 +8,89 @@ import { useStateWithCallbackLazy } from 'use-state-with-callback';
 export const SplashButtons = React.forwardRef((props, ref) => {
     const playImage = require('../images/play.png');
     const infoImage = require('../images/info.png');
-    const [continueFrom, setContinueFrom] = useStateWithCallbackLazy(0);
+    //const [continueFrom, setContinueFrom] = useStateWithCallbackLazy(0);
+    //const [resumeEpisodeName, setResumeEpisodeName] = useStateWithCallbackLazy('');
+    const [content, setContent] = useStateWithCallbackLazy(null);
 
+    const contentRef = useRef();
+    contentRef.current = content;
+    const nextEpisodeButtonRef = useRef();
     const playButtonRef = useRef();
     const resumeButtonRef = useRef();
     const infoButtonRef = useRef();
+    const resumeEpisodeButtonRef = useRef();
 
     useImperativeHandle(ref, () => ({
         focus() {
-            if (resumeButtonRef.current) {
-                resumeButtonRef.current.setNativeProps({
-                    hasTVPreferredFocus: true
-                });
-            } else {
-                playButtonRef.current.setNativeProps({
-                    hasTVPreferredFocus: true
-                });
+            if (contentRef.current) {
+                if (contentRef.current.isMovie()) {
+                    if (contentRef.current.watchtime > 0) {
+                        resumeButtonRef.current.setNativeProps({
+                            hasTVPreferredFocus: true
+                        });
+                    } else {
+                        playButtonRef.current.setNativeProps({
+                            hasTVPreferredFocus: true
+                        });
+                    }
+                } else if (contentRef.current.isShow()) {
+                    if (contentRef.current.nextEpisode) {
+                        nextEpisodeButtonRef.current.setNativeProps({
+                            hasTVPreferredFocus: true
+                        });
+                    } else if (contentRef.current.resumeEpisode) {
+                        resumeEpisodeButtonRef.current.setNativeProps({
+                            hasTVPreferredFocus: true
+                        });
+                    } else {
+                        infoButtonRef.current.setNativeProps({
+                            hasTVPreferredFocus: true
+                        });
+                    }
+                }
             }
         }
     }));
 
     useEffect(() => {
-        setContinueFrom(props.continueFrom, () => {
-            resumeButtonRef.current.setNativeProps({
-                hasTVPreferredFocus: true
-            });
+        setContent(props.content, () => {
+            if (contentRef.current.isMovie()) {
+                if (contentRef.current.watchtime > 0) {
+                    resumeButtonRef.current.setNativeProps({
+                        hasTVPreferredFocus: true
+                    });
+                } else {
+                    playButtonRef.current.setNativeProps({
+                        hasTVPreferredFocus: true
+                    });
+                }
+            } else if (contentRef.current.isShow()) {
+                if (contentRef.current.nextEpisode) {
+                    nextEpisodeButtonRef.current.setNativeProps({
+                        hasTVPreferredFocus: true
+                    });
+                } else if (contentRef.current.resumeEpisode) {
+                    resumeEpisodeButtonRef.current.setNativeProps({
+                        hasTVPreferredFocus: true
+                    });
+                } else {
+                    infoButtonRef.current.setNativeProps({
+                        hasTVPreferredFocus: true
+                    });
+                }
+            }
         });
     }, [props]);
 
     useEffect(() => {
-        playButtonRef.current.setNativeProps({
-            nextFocusRight: findNodeHandle(infoButtonRef.current)
-        });
-        infoButtonRef.current.setNativeProps({
-            nextFocusLeft: findNodeHandle(playButtonRef.current)
-        });
+        if (playButtonRef.current != undefined && infoButtonRef.current != undefined) {
+            playButtonRef.current.setNativeProps({
+                nextFocusRight: findNodeHandle(infoButtonRef.current)
+            });
+            infoButtonRef.current.setNativeProps({
+                nextFocusLeft: findNodeHandle(playButtonRef.current)
+            });
+        }
     }, []);
 
     const secondsToTime = (secs) => {
@@ -59,55 +107,108 @@ export const SplashButtons = React.forwardRef((props, ref) => {
         if (seconds < 10) {
             seconds = "0" + seconds;
         }
-        return hours + ':' + minutes + ':' + seconds;
+        return `${hours > 0 ? hours + ':' : ''}${minutes}:${seconds}`;
     }
 
     const onPress = (time) => {
         props.onPlay(time);
     }
 
-    return (
-        <View style={styles.buttonContainer}>
-            {continueFrom > 0 &&
+    const renderMovieButtons = () => {
+        return (
+            <View style={styles.buttonContainer}>
+                {content != null && content.watchtime > 0 &&
+                    <TouchableOpacity
+                        activeOpacity={1.0}
+                        style={styles.button}
+                        onPress={() => onPress(content.watchtime)}
+                        onFocus={props.onFocus}
+                        onBlur={() => { console.log("called onblur") }}
+                        ref={resumeButtonRef}
+                    >
+                        <Image source={playImage} style={styles.buttonImage} />
+                        <Text style={styles.text}>Resume at {secondsToTime(content.watchtime)}</Text>
+                    </TouchableOpacity>
+                }
+
                 <TouchableOpacity
                     activeOpacity={1.0}
                     style={styles.button}
-                    onPress={() => onPress(continueFrom)}
+                    onPress={() => onPress(0)}
                     onFocus={props.onFocus}
                     onBlur={() => { console.log("called onblur") }}
-                    ref={resumeButtonRef}
+                    ref={playButtonRef}
                 >
                     <Image source={playImage} style={styles.buttonImage} />
-                    <Text style={styles.text}>Resume at {secondsToTime(continueFrom)}</Text>
+                    <Text style={styles.text}>Play</Text>
                 </TouchableOpacity>
-            }
 
-            <TouchableOpacity
-                activeOpacity={1.0}
-                style={styles.button}
-                onPress={() => onPress(0)}
-                onFocus={props.onFocus}
-                onBlur={() => { console.log("called onblur") }}
-                ref={playButtonRef}
-            >
-                <Image source={playImage} style={styles.buttonImage} />
-                <Text style={styles.text}>Play</Text>
-            </TouchableOpacity>
+                <TouchableOpacity
+                    activeOpacity={1.0}
+                    style={styles.button}
+                    onPress={props.onInfo}
+                    onFocus={props.onFocus}
+                    onBlur={() => { console.log("called onblur") }}
+                    ref={infoButtonRef}
+                >
+                    <Image source={infoImage} style={styles.buttonImage} />
+                    <Text style={styles.text}>More Info</Text>
+                </TouchableOpacity>
+            </View>
+        )
+    }
 
-            <TouchableOpacity
-                activeOpacity={1.0}
-                style={styles.button}
-                onPress={props.onInfo}
-                onFocus={props.onFocus}
-                onBlur={() => { console.log("called onblur") }}
-                ref={infoButtonRef}
-            >
-                <Image source={infoImage} style={styles.buttonImage} />
-                <Text style={styles.text}>More Info</Text>
-            </TouchableOpacity>
-        </View>
+    const renderShowButtons = () => {
+        return (
+            <View style={styles.buttonContainer}>
+                {content != null && content.nextEpisode &&
+                    <TouchableOpacity
+                        activeOpacity={1.0}
+                        style={styles.button}
+                        onPress={() => onPress(0)}
+                        onFocus={props.onFocus}
+                        onBlur={() => { console.log("called onblur") }}
+                        ref={nextEpisodeButtonRef}
+                    >
+                        <Image source={playImage} style={styles.buttonImage} />
+                        <Text style={styles.text}>Play {content.getNextEpisodeName()}</Text>
+                    </TouchableOpacity>
+                }
 
+                {content != null && content.resumeEpisode &&
+                    <TouchableOpacity
+                        activeOpacity={1.0}
+                        style={styles.button}
+                        onPress={() => onPress(content.getResumeEpisodeTime())}
+                        onFocus={props.onFocus}
+                        onBlur={() => { console.log("called onblur") }}
+                        ref={resumeEpisodeButtonRef}
+                    >
+                        <Image source={playImage} style={styles.buttonImage} />
+                        <Text style={styles.text}>Resume {content.getResumeEpisodeName()}</Text>
+                    </TouchableOpacity>
+                }
 
+                <TouchableOpacity
+                    activeOpacity={1.0}
+                    style={styles.button}
+                    onPress={props.onInfo}
+                    onFocus={props.onFocus}
+                    onBlur={() => { console.log("called onblur") }}
+                    ref={infoButtonRef}
+                >
+                    <Image source={infoImage} style={styles.buttonImage} />
+                    <Text style={styles.text}>More Info</Text>
+                </TouchableOpacity>
+            </View>
+        )
+    }
+
+    return (
+        <>
+            {content != null && content.isMovie() && renderMovieButtons()}
+            {content != null && content.isShow() && renderShowButtons()}
+        </>
     );
 });
 

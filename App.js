@@ -37,6 +37,8 @@ import { ContentServerSetup } from './src/screens/setup/ContentServerSetup';
 import { Player } from './src/screens/Player';
 import { MovieInfo } from './src/screens/info/MovieInfo';
 import { Initial } from './src/screens/Initial';
+import { ShowInfo } from './src/screens/info/ShowInfo';
+import { SeasonInfo } from './src/screens/info/SeasonInfo';
 
 const Stack = createNativeStackNavigator();
 
@@ -82,6 +84,20 @@ const App: () => Node = () => {
                 <Stack.Screen
                     name="MovieInfo"
                     component={MovieInfo}
+                    options={{
+                        headerShown: false,
+                    }}
+                />
+                <Stack.Screen
+                    name="ShowInfo"
+                    component={ShowInfo}
+                    options={{
+                        headerShown: false,
+                    }}
+                />
+                <Stack.Screen
+                    name="SeasonInfo"
+                    component={SeasonInfo}
                     options={{
                         headerShown: false,
                     }}

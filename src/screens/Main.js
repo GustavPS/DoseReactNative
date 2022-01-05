@@ -10,6 +10,8 @@ const img = { uri: "https://image.tmdb.org/t/p/original//qA3O0xaoesnIAmMWYz0RJyF
 import { useStateWithCallbackLazy } from 'use-state-with-callback';
 import { Movie } from '../lib/Content/Movie';
 import { useIsFocused } from '@react-navigation/native';
+import { MOVIE_TYPE, SHOW_TYPE } from '../lib/Content/Base';
+import { Episode } from '../lib/Content/Episode';
 
 export const Main = ({ navigation }) => {
 
@@ -70,7 +72,8 @@ export const Main = ({ navigation }) => {
                 const movieWatchlistPromise = contentServer.getMovieWatchlist();
                 const newlyAddedMoviesPromise = contentServer.getNewlyAddedMovies();
                 const newlyReleasedMoviesPromise = contentServer.getNewlyReleasedMovies();
-                Promise.all([popularMoviesPromise, ongoingMoviesPromise, movieWatchlistPromise, newlyAddedMoviesPromise, newlyReleasedMoviesPromise]).then(([popularMovies, ongoingMovies, movieWatchlist, newlyAddedMovies, newlyReleasedMovies]) => {
+                const newlyAddedShowsPromise = contentServer.getNewlyAddedShows();
+                Promise.all([popularMoviesPromise, ongoingMoviesPromise, movieWatchlistPromise, newlyAddedMoviesPromise, newlyReleasedMoviesPromise, newlyAddedShowsPromise]).then(([popularMovies, ongoingMovies, movieWatchlist, newlyAddedMovies, newlyReleasedMovies, newlyAddedShows]) => {
                     const moviesToAdd = [];
                     let indx = 0;
                     if (popularMovies.length > 0) {
@@ -87,11 +90,18 @@ export const Main = ({ navigation }) => {
                             data: ongoingMovies,
                         });
                     }
-                    if (movieWatchlist.length > 0) {
+                    if (newlyAddedMovies.length > 0) {
                         moviesToAdd.push({
                             id: indx++,
                             title: 'New Movies',
                             data: newlyAddedMovies,
+                        });
+                    }
+                    if (newlyAddedShows.length > 0) {
+                        moviesToAdd.push({
+                            id: indx++,
+                            title: 'New Shows',
+                            data: newlyAddedShows,
                         });
                     }
                     if (newlyReleasedMovies.length > 0) {
@@ -108,12 +118,10 @@ export const Main = ({ navigation }) => {
                             data: movieWatchlist,
                         });
                     }
-                    console.log(`indx: ${indx}`);
                     setMovies(moviesToAdd, () => {
                         Promise.all(promises).then(results => {
                             const resultingMovies = [];
                             let lastIndex = moviesStateRef.current.length - 1 // NOTE: Might fail if ids are not set correctly
-                            console.log(`lastIndex: ${lastIndex}`);
                             for (let i = 0; i < results.length; i++) {
                                 const genre = genres[i];
                                 const movies = results[i];
@@ -161,7 +169,8 @@ export const Main = ({ navigation }) => {
     }, [isFocused]);
 
     const contentFocused = (item, rowId) => {
-        const movie = new Movie(item.title, item.description, item.id, item.images, item.watchtime, item.runTime);
+        console.log(typeof item);
+        const movie = item;
         if (timerRef.current) {
             clearTimeout(timerRef.current);
         }
@@ -187,7 +196,6 @@ export const Main = ({ navigation }) => {
     }
 
     const contentSelected = (item, rowId) => {
-        const movie = new Movie(item.title, item.description, item.id, item.images);
         splashFocused();
     };
 
@@ -213,16 +221,51 @@ export const Main = ({ navigation }) => {
     }
 
     const onPlay = (time) => {
-        navigation.navigate('Player', {
-            movie: selectedContent,
-            startTime: time,
-        });
+        if (selectedContent.isMovie()) {
+            navigation.navigate('Player', {
+                content: selectedContent,
+                startTime: time,
+            });
+        } else {
+            contentServer.initialize().then(() => {
+                let episodeId, seasonNumber, episodeNumber;
+                if (selectedContent.nextEpisode) {
+                    episodeId = selectedContent.nextEpisode.episodeId;
+                    seasonNumber = selectedContent.nextEpisode.seasonNumber;
+                    episodeNumber = selectedContent.nextEpisode.episodeNumber;
+                } else if (selectedContent.resumeEpisode) {
+                    episodeId = selectedContent.resumeEpisode.episodeId;
+                    seasonNumber = selectedContent.resumeEpisode.seasonNumber;
+                    episodeNumber = selectedContent.resumeEpisode.episodeNumber;
+                } else {
+                    console.log(`Tried to start a show that can't be resumed or has a next episode`);
+                    return;
+                }
+
+                contentServer.getEpisodeMetadata(episodeNumber, selectedContent.id, seasonNumber).then(episode => {
+                    const content = new Episode(episode.name, episode.overview, episode.internalepisodeid, episodeNumber, episode.backdrop);
+                    navigation.navigate('Player', {
+                        content: content,
+                        startTime: time,
+                    });
+                });
+
+            });
+        }
+
+
     }
 
     const onInfo = () => {
-        navigation.navigate('MovieInfo', {
-            movie: selectedContent,
-        });
+        if (selectedContent.isMovie()) {
+            navigation.navigate('MovieInfo', {
+                movie: selectedContent,
+            });
+        } else if (selectedContent.isShow()) {
+            navigation.navigate('ShowInfo', {
+                show: selectedContent,
+            });
+        }
     }
 
     return (

@@ -11,7 +11,7 @@ import { SettingsBox } from '../components/Player/SettingsBox';
 import { TVEventHandler } from 'react-native';
 
 export const Player = ({ route, navigation }) => {
-    const { movie, startTime } = route.params;
+    const { content, startTime } = route.params;
     const _tvEventHandler = new TVEventHandler();
     const [videoSource, setVideoSource] = React.useState(null);
     const [languages, setLanguages] = React.useState([]);
@@ -137,15 +137,15 @@ export const Player = ({ route, navigation }) => {
 
     const onVideoLoad = (data) => {
         contentServer.initialize().then(() => {
-            contentServer.getTranscodingGroupId(movie).then(transcodingGroupId => {
+            contentServer.getTranscodingGroupId(content).then(transcodingGroupId => {
                 setTranscodingGroupId(transcodingGroupId);
 
                 updateWatchtimeTimeout.current = setInterval(() => {
-                    contentServer.updateWatchtime(movie, transcodingGroupId, currentTimeRef.current, data.duration);
+                    contentServer.updateWatchtime(content, transcodingGroupId, currentTimeRef.current, data.duration);
                 }, 5000);
 
                 pingTimeout.current = setInterval(() => {
-                    contentServer.ping(movie, transcodingGroupId);
+                    contentServer.ping(content, transcodingGroupId);
                 }, 10000);
             });
         });
@@ -177,7 +177,7 @@ export const Player = ({ route, navigation }) => {
         resetHideControlsTimeout();
 
         contentServer.initialize().then(() => {
-            Promise.all([contentServer.getAccessToken(), contentServer.getUrl(), contentServer.getMovieLanguages(movie)]).then(([accessToken, contentServerUrl, availableLanguages]) => {
+            Promise.all([contentServer.getAccessToken(), contentServer.getUrl(), contentServer.getContentLanguages(content)]).then(([accessToken, contentServerUrl, availableLanguages]) => {
                 setLanguages(availableLanguages);
                 let preferredLanguage = findPreferredLanguage(availableLanguages);
                 console.log(availableLanguages);
@@ -188,7 +188,7 @@ export const Player = ({ route, navigation }) => {
 
 
                 const videoSource = {
-                    uri: movie.getSource(contentServerUrl, accessToken, preferredLanguage.stream_index),
+                    uri: content.getSource(contentServerUrl, accessToken, preferredLanguage.stream_index),
                     type: "m3u8"
                 }
                 setVideoSource(videoSource);
@@ -435,7 +435,6 @@ export const Player = ({ route, navigation }) => {
                         maximumTrackTintColor="white"
                         disabled={true}
                     />
-
                     <Text style={styles.progressText}>{`${formatTime(duration)}`}</Text>
                 </View>
             }
