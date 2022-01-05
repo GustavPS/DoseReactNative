@@ -67,7 +67,7 @@ export const ContentList = (props) => {
                     width: width,
                     height: height,
                 }}
-                style={{ width: '100%', height: styleHeight }}
+                style={{ width: '100%', height: styleHeight, marginTop: useBackdrop ? -10 : 0}}
                 onFocus={(item) => onFocus(item)}
                 onPress={(item) => onPress(item)}
             />
@@ -95,5 +95,8 @@ const styles = StyleSheet.create({
     list: {
         borderColor: 'rgba(52, 52, 52, 0.0)',
         borderWidth: 1,
+    },
+
+    backdrop: {
     }
 })

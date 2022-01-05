@@ -30,6 +30,7 @@ export const Player = ({ route, navigation }) => {
     const [seeking, setSeeking] = useStateWithCallbackLazy(false);
     const [currentSeekTime, setCurrentSeekTime] = useStateWithCallbackLazy(0);
     const [loading, setLoading] = useStateWithCallbackLazy(true);
+    const [isDoneInitializing, setIsDoneInitializing] = useStateWithCallbackLazy(false);
 
     const backHandlerRef = useRef(null);
     const showSettingsRef = useRef();
@@ -40,6 +41,8 @@ export const Player = ({ route, navigation }) => {
     const durationRef = useRef();
     const seekingRef = useRef();
     const loadingRef = useRef();
+    const isDoneInitializingRef = useRef();
+    isDoneInitializingRef.current = isDoneInitializing;
     loadingRef.current = loading;
     seekingRef.current = seeking;
     durationRef.current = duration;
@@ -141,13 +144,14 @@ export const Player = ({ route, navigation }) => {
         return null;
     }
 
-    const onVideoLoad = (data) => {
+    const startPings = () => {
+        console.log("STARTING STUFF");
         contentServer.initialize().then(() => {
             contentServer.getTranscodingGroupId(content).then(transcodingGroupId => {
                 setTranscodingGroupId(transcodingGroupId);
 
                 updateWatchtimeTimeout.current = setInterval(() => {
-                    contentServer.updateWatchtime(content, transcodingGroupId, currentTimeRef.current, data.duration);
+                    contentServer.updateWatchtime(content, transcodingGroupId, currentTimeRef.current, durationRef.current);
                 }, 5000);
 
                 pingTimeout.current = setInterval(() => {
@@ -155,8 +159,18 @@ export const Player = ({ route, navigation }) => {
                 }, 10000);
             });
         });
-        videoPlayerRef.current.seek(startTime);
+    }
 
+    // Once this is called, we can start pinging the server and the initialization is done
+    const onSeek = (data) => {
+        if (!isDoneInitializingRef.current) {
+            startPings();
+            setIsDoneInitializing(true);
+        }
+    }
+
+    const onVideoLoad = (data) => {
+        videoPlayerRef.current.seek(startTime);
         const subtitlesToAdd = [];
         for (const subtitle of data.textTracks) {
             if (subtitle.language != "") {
@@ -327,6 +341,7 @@ export const Player = ({ route, navigation }) => {
                     onProgress={onVideoProgress}
                     onBuffer={() => { setLoading(true) }}
                     onError={onVideoError}
+                    onSeek={onSeek}
                     selectedVideoTrack={{
                         type: "resolution",
                         value: selectedResolution

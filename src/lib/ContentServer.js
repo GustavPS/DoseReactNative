@@ -1,4 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
+import { Episode } from './Content/Episode';
 import { Movie } from './Content/Movie';
 import { Show } from './Content/Show';
 import Token from './Token';
@@ -160,6 +161,41 @@ export class ContentServer {
                             returnData.push(
                                 new Movie(movie.title, movie.overview, movie.id, movie.images)
                             );
+                        }
+                        resolve(returnData);
+                    }).catch(err => {
+                        reject(err);
+                    });
+                }).catch(err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+
+    /**
+     * Get a list of TV shows by genre
+     * 
+     * @param {string} genre - The genre to get shows for
+     * @returns 
+     */
+    getShowsByGenre(genre) {
+        return new Promise((resolve, reject) => {
+            this.token.validateContentToken().then(token => {
+                const url = `${this.url}/api/series/list/genre/${genre}?token=${token}`;
+                fetch(url).then(result => {
+                    result.json().then(data => {
+                        const shows = data.result;
+                        const returnData = [];
+                        for (const show of shows) {
+                            const showToAdd = new Show(show.title, show.overview, show.id, show.images);
+                            if (show.nextEpisodeForUser != null) {
+                                showToAdd.setNextEpisode(show.nextEpisodeForUser.episode, show.nextEpisodeForUser.episode_id, show.nextEpisodeForUser.season_number);
+                            }
+                            if (show.episodeProgress != null) {
+                                showToAdd.setResumeEpisode(show.episodeProgress.episode, show.episodeProgress.episode_id, show.episodeProgress.season_number, show.episodeProgress.time);
+                            }
+                            returnData.push(showToAdd);
                         }
                         resolve(returnData);
                     }).catch(err => {
@@ -419,6 +455,41 @@ export class ContentServer {
                 fetch(url).then(result => {
                     result.json().then(data => {
                         resolve(data.result);
+                    }).catch(err => {
+                        reject(err);
+                    });
+                }).catch(err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+
+    getOngoingEpisodes() {
+        return new Promise((resolve, reject) => {
+            this.token.validateContentToken().then(token => {
+                const url = `${this.url}/api/series/list/ongoing?token=${token}`;
+                fetch(url).then(result => {
+                    result.json().then(data => {
+                        const ongoingEpisodes = data.ongoing;
+                        const upcomingEpisodes = data.upcoming;
+                        const returnData = [];
+                        for (const episode of ongoingEpisodes) {
+                            let backdrop, poster;
+                            for (const image of episode.images) {
+                                if (image.type === "POSTER" && image.active) {
+                                    poster = image.path;
+                                } else if (image.type === "BACKDROP" && image.active) {
+                                    backdrop = image.path;
+                                }
+                            }
+                            const episodeToAdd = new Episode(episode.name, episode.overview, episode.internalepisodeid, episode.episode_number, episode.season_number, backdrop);
+                            episodeToAdd.setIncludeSeasonInTitle(true);
+                            episodeToAdd.setWatchtime(episode.time_watched);
+                            episodeToAdd.setRuntime(episode.total_time);
+                            returnData.push(episodeToAdd);
+                        }
+                        resolve(returnData);
                     }).catch(err => {
                         reject(err);
                     });

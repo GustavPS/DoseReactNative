@@ -64,6 +64,7 @@ export const Main = ({ navigation }) => {
                 const promises = [];
                 for (const genre of genres) {
                     promises.push(contentServer.getMoviesByGenre(genre.name));
+                    promises.push(contentServer.getShowsByGenre(genre.name));
                 }
 
                 const popularMoviesPromise = contentServer.getPopularMovies();
@@ -72,7 +73,8 @@ export const Main = ({ navigation }) => {
                 const newlyAddedMoviesPromise = contentServer.getNewlyAddedMovies();
                 const newlyReleasedMoviesPromise = contentServer.getNewlyReleasedMovies();
                 const newlyAddedShowsPromise = contentServer.getNewlyAddedShows();
-                Promise.all([popularMoviesPromise, ongoingMoviesPromise, movieWatchlistPromise, newlyAddedMoviesPromise, newlyReleasedMoviesPromise, newlyAddedShowsPromise]).then(([popularMovies, ongoingMovies, movieWatchlist, newlyAddedMovies, newlyReleasedMovies, newlyAddedShows]) => {
+                const ongoingEpisodesPromise = contentServer.getOngoingEpisodes();
+                Promise.all([popularMoviesPromise, ongoingMoviesPromise, movieWatchlistPromise, newlyAddedMoviesPromise, newlyReleasedMoviesPromise, newlyAddedShowsPromise, ongoingEpisodesPromise]).then(([popularMovies, ongoingMovies, movieWatchlist, newlyAddedMovies, newlyReleasedMovies, newlyAddedShows, ongoingEpisodes]) => {
                     const moviesToAdd = [];
                     let indx = 0;
                     if (popularMovies.length > 0) {
@@ -87,6 +89,15 @@ export const Main = ({ navigation }) => {
                             id: indx++,
                             title: 'Ongoing Movies',
                             data: ongoingMovies,
+                        });
+                    }
+                    if (ongoingEpisodes.length > 0) {
+                        moviesToAdd.push({
+                            id: indx++,
+                            title: 'Ongoing Episodes',
+                            data: ongoingEpisodes,
+                            backdrop: true,
+                            showTitle: true
                         });
                     }
                     if (newlyAddedMovies.length > 0) {
@@ -121,14 +132,25 @@ export const Main = ({ navigation }) => {
                         Promise.all(promises).then(results => {
                             const resultingMovies = [];
                             let lastIndex = moviesStateRef.current.length - 1 // NOTE: Might fail if ids are not set correctly
+                            let genreIndex = 0; // Increments every second genre because we are getting 2 results per genre (movies and shows)
                             for (let i = 0; i < results.length; i++) {
-                                const genre = genres[i];
-                                const movies = results[i];
-                                if (movies.length > 0) {
+                                // Increment genreIndex every second iteration
+                                if (i % 2 === 0 && i !== 0) {
+                                    genreIndex++;
+                                }
+
+                                const genre = genres[genreIndex];
+                                const contents = results[i];
+                                if (contents.length > 0) {
+                                    let title = genre.name;
+                                    if (!contents[0].isMovie()) {
+                                        title += ' Shows';
+                                    }
+
                                     resultingMovies.push({
                                         id: ++lastIndex,
-                                        title: genre.name,
-                                        data: movies,
+                                        title: title,
+                                        data: contents,
                                     });
                                 }
                             }
@@ -227,7 +249,7 @@ export const Main = ({ navigation }) => {
     }
 
     const onPlay = (time) => {
-        if (selectedContent.isMovie()) {
+        if (selectedContent.isMovie() || selectedContent.isEpisode()) {
             navigation.navigate('Player', {
                 content: selectedContent,
                 startTime: time,
@@ -307,7 +329,8 @@ export const Main = ({ navigation }) => {
                             onPress={(selected) => contentSelected(selected, item.id)}
                             title={item.title}
                             data={item.data}
-                            useBackdrop={false}
+                            useBackdrop={item.backdrop}
+                            showTitle={item.showTitle}
                             style={{ marginBottom: 10 }}
                         />
                     )

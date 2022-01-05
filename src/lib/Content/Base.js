@@ -43,6 +43,10 @@ export class Base {
         return this.type == SHOW_TYPE;
     }
 
+    isEpisode() {
+        return this.type == EPISODE_TYPE;
+    }
+
     setActiveImages() {
         for (const image of this.images) {
             if (image.active) {

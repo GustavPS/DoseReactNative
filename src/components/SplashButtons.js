@@ -20,40 +20,8 @@ export const SplashButtons = React.forwardRef((props, ref) => {
     const infoButtonRef = useRef();
     const resumeEpisodeButtonRef = useRef();
 
-    useImperativeHandle(ref, () => ({
-        focus() {
-            if (contentRef.current) {
-                if (contentRef.current.isMovie()) {
-                    if (contentRef.current.watchtime > 0) {
-                        resumeButtonRef.current.setNativeProps({
-                            hasTVPreferredFocus: true
-                        });
-                    } else {
-                        playButtonRef.current.setNativeProps({
-                            hasTVPreferredFocus: true
-                        });
-                    }
-                } else if (contentRef.current.isShow()) {
-                    if (contentRef.current.nextEpisode) {
-                        nextEpisodeButtonRef.current.setNativeProps({
-                            hasTVPreferredFocus: true
-                        });
-                    } else if (contentRef.current.resumeEpisode) {
-                        resumeEpisodeButtonRef.current.setNativeProps({
-                            hasTVPreferredFocus: true
-                        });
-                    } else {
-                        infoButtonRef.current.setNativeProps({
-                            hasTVPreferredFocus: true
-                        });
-                    }
-                }
-            }
-        }
-    }));
-
-    useEffect(() => {
-        setContent(props.content, () => {
+    const setFocus = () => {
+        if (contentRef.current) {
             if (contentRef.current.isMovie()) {
                 if (contentRef.current.watchtime > 0) {
                     resumeButtonRef.current.setNativeProps({
@@ -78,7 +46,23 @@ export const SplashButtons = React.forwardRef((props, ref) => {
                         hasTVPreferredFocus: true
                     });
                 }
+            } else if (contentRef.current.isEpisode()) {
+                playButtonRef.current.setNativeProps({
+                    hasTVPreferredFocus: true
+                });
             }
+        }
+    }
+
+    useImperativeHandle(ref, () => ({
+        focus() {
+            setFocus();
+        }
+    }));
+
+    useEffect(() => {
+        setContent(props.content, () => {
+            setFocus();
         });
     }, [props]);
 
@@ -204,10 +188,29 @@ export const SplashButtons = React.forwardRef((props, ref) => {
         )
     }
 
+    const renderEpisodeButtons = () => {
+        return (
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                    activeOpacity={1.0}
+                    style={styles.button}
+                    onPress={() => onPress(content.watchtime)}
+                    onFocus={props.onFocus}
+                    onBlur={() => { console.log("called onblur") }}
+                    ref={playButtonRef}
+                >
+                    <Image source={infoImage} style={styles.buttonImage} />
+                    <Text style={styles.text}>{content.watchtime > 0 ? `Resume from ${secondsToTime(content.watchtime)}` : "Play"}</Text>
+                </TouchableOpacity>
+            </View>
+        )
+    }
+
     return (
         <>
             {content != null && content.isMovie() && renderMovieButtons()}
             {content != null && content.isShow() && renderShowButtons()}
+            {content != null && content.isEpisode() && renderEpisodeButtons()}
         </>
     );
 });

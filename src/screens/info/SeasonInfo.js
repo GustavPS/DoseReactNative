@@ -21,7 +21,7 @@ export const SeasonInfo = ({ route, navigation }) => {
             const episodesToAdd = [];
             for (const episode of metadata.episodes) {
                 episodesToAdd.push(
-                    new Episode(episode.name, episode.overview, episode.internalID, episode.episode, episode.backdrop)
+                    new Episode(episode.name, episode.overview, episode.internalID, episode.episode, show.id, episode.backdrop)
                 );
             }
             setEpisodes(episodesToAdd);

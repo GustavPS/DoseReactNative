@@ -23,7 +23,7 @@ export const Splash = React.forwardRef((props, ref) => {
         setSplash(content) {
             setContent(content);
             setBackdrop({ uri: content.getBackdropPath('original') });
-            setTitle(content.title);
+            setTitle(content.getTitle());
             const description = content.description.length > 100 ? content.description.substring(0, 100) + "..." : content.description;
             setDescription(description);
             const logo = content.getLogoPath('original');

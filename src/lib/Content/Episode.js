@@ -2,19 +2,37 @@ import { Base, EPISODE_TYPE } from './Base.js';
 
 export class Episode extends Base {
 
-    constructor(name, overview, internal_id, episodeNumber, backdrop_path) {
+    constructor(name, overview, internal_id, episodeNumber, season_number, backdrop_path) {
         super(EPISODE_TYPE);
 
         this.title = name;
         this.description = overview;
         this.id = internal_id;
         this.episodeNumber = episodeNumber;
+        this.season_number = season_number;
         this.backdrop = backdrop_path;
         this.watchtime = 0;
         this.runTime = 0;
+        this.includeSeasonInTitle = false;
+    }
+
+    setIncludeSeasonInTitle(include) {
+        this.includeSeasonInTitle = include;
+    }
+
+    setWatchtime(watchtime) {
+        this.watchtime = watchtime;
+    }
+
+    setRuntime(runTime) {
+        this.runTime = runTime;
     }
 
     getTitle() {
-        return `Episode ${this.episodeNumber}`;
+        if (this.includeSeasonInTitle) {
+            return `Season ${this.season_number} Episode ${this.episodeNumber}`;
+        } else {
+            return `Episode ${this.episodeNumber}`;
+        }
     }
 }
