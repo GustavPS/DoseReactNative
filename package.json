@@ -23,9 +23,10 @@
     "react-native": "npm:react-native-tvos@0.64.2-4",
     "react-native-safe-area-context": "^3.3.2",
     "react-native-screens": "^3.10.1",
-    "react-native-video": "^5.2.0",
+    "react-native-video": "5.2.0",
     "rn-range-slider": "^2.1.1",
-    "use-state-with-callback": "^2.0.3"
+    "use-state-with-callback": "^2.0.3",
+    "expo-av": "~10.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

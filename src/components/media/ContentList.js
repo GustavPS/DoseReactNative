@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground, FlatList, Animated, TouchableWithoutFeedback } from 'react-native';
 import { Poster } from './Poster';
-import { Row } from '@reactseals/react-native-leanback';
+import { Grid, Row } from '@reactseals/react-native-leanback';
 const img = { uri: "https://image.tmdb.org/t/p/original//qA3O0xaoesnIAmMWYz0RJyFMc97.jpg" };
 
 
@@ -11,7 +11,7 @@ export const ContentList = (props) => {
     const height = useBackdrop ? 100 : 130;
     let styleHeight = useBackdrop ? 180 : 150;
     if (showDescription) {
-        styleHeight += 50; 
+        styleHeight += 50;
     }
 
     const convertDataToRow = (data) => {
@@ -37,7 +37,6 @@ export const ContentList = (props) => {
         return returnList;
     }
 
-    const rows = convertDataToRow(data);
     const getDataFromRowItem = (selected) => {
         for (const item of data) {
             if (item.id == selected.id) {
@@ -45,10 +44,11 @@ export const ContentList = (props) => {
             }
         }
     }
+    const rows = convertDataToRow(data);
 
     const onFocus = (selected) => {
         if (props.onFocus != null) {
-            props.onFocus(getDataFromRowItem(selected));
+            props.onFocus(getDataFromRowItem(selected), selected.index === 0);
         }
     }
 
@@ -61,16 +61,17 @@ export const ContentList = (props) => {
     return (
         <View style={[styles.container, props.style]}>
             <Text style={styles.rowTitle}>{props.title}</Text>
-            <Row
-                data={rows}
-                attributes={{
-                    width: width,
-                    height: height,
-                }}
-                style={{ width: '100%', height: styleHeight, marginTop: useBackdrop ? -10 : 0}}
-                onFocus={(item) => onFocus(item)}
-                onPress={(item) => onPress(item)}
-            />
+                <Row
+                    data={rows}
+                    attributes={{
+                        width: width,
+                        height: height,
+                    }}
+                    style={{ width: '100%', height: styleHeight, marginTop: useBackdrop ? -10 : 0 }}
+                    onFocus={(item) => onFocus(item, item.isFirstItem)}
+                    onPress={(item) => onPress(item)}
+                />
+
         </View>
     );
 };

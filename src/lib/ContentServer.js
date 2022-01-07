@@ -222,7 +222,6 @@ export class ContentServer {
                 fetch(url).then(result => {
                     result.json().then(data => {
                         resolve(data);
-
                     }).catch(err => {
                         reject(err);
                     });
@@ -461,7 +460,7 @@ export class ContentServer {
                 }).catch(err => {
                     reject(err);
                 });
-            });
+            })
         });
     }
 
@@ -483,7 +482,7 @@ export class ContentServer {
                                     backdrop = image.path;
                                 }
                             }
-                            const episodeToAdd = new Episode(episode.name, episode.overview, episode.internalepisodeid, episode.episode_number, episode.season_number, backdrop);
+                            const episodeToAdd = new Episode(episode.name, episode.overview, episode.internalepisodeid, episode.show_id, episode.episode_number, episode.season_number, backdrop);
                             episodeToAdd.setIncludeSeasonInTitle(true);
                             episodeToAdd.setWatchtime(episode.time_watched);
                             episodeToAdd.setRuntime(episode.total_time);
@@ -548,6 +547,69 @@ export class ContentServer {
             });
         });
     }
+
+    getNextEpisode(episode) {
+        return new Promise((resolve, reject) => {
+            this.token.validateContentToken().then(token => {
+                const url = `${this.url}/api/series/getNextEpisode?serie_id=${episode.show_id}&season=${episode.season_number}&episode=${episode.episodeNumber}&token=${token}`;
+                fetch(url).then(result => {
+                    result.json().then(data => {
+                        if (data.foundEpisode) {
+                            this.getEpisodeMetadata(data.episode, episode.show_id, data.season).then(nextEpisode => {
+                                const content = new Episode(nextEpisode.name, nextEpisode.overview, nextEpisode.internalepisodeid, episode.show_id, data.episode, nextEpisode.backdrop);
+                                resolve(content);
+                            }).catch(err => {
+                                reject(err);
+                            });
+                        } else {
+                            resolve(false);
+                        }
+                    }).catch(err => {
+                        reject(err);
+                    });
+                }).catch(err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+
+    /**
+     * Search for movies and TV Shows
+     * 
+     * @param {String} query - The query to search for
+     * @returns 
+     */
+    search(query) {
+        return new Promise((resolve, reject) => {
+            this.token.validateContentToken().then(token => {
+                const url = `${this.url}/api/list/search?token=${token}&query=${query}`;
+                fetch(url).then(result => {
+                    result.json().then(data => {
+                        const returnData = [];
+                        const movies = data.movies;
+                        const shows = data.series;
+                        for (const movie of movies) {
+                            returnData.push(
+                                new Movie(movie.title, movie.overview, movie.id, movie.images)
+                            );
+                        }
+                        for (const show of shows) {
+                            returnData.push(
+                                new Show(show.title, show.overview, show.id, show.images)
+                            );
+                        }
+                        resolve(returnData);
+                    }).catch(err => {
+                        reject(err);
+                    });
+                }).catch(err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+                            
 
     ping(content, transcodingGroupId) {
         return new Promise((resolve, reject) => {

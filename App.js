@@ -39,6 +39,7 @@ import { MovieInfo } from './src/screens/info/MovieInfo';
 import { Initial } from './src/screens/Initial';
 import { ShowInfo } from './src/screens/info/ShowInfo';
 import { SeasonInfo } from './src/screens/info/SeasonInfo';
+import { Search } from './src/screens/Search';
 
 const Stack = createNativeStackNavigator();
 
@@ -58,7 +59,9 @@ const App: () => Node = () => {
                 screenOptions={{
                     cardStyle: backgroundStyle,
                     headerStyle: { elevation: 0 },
+                    unmountOnBlur: true,
                 }}
+                unmountOnBlur={true}
             >
                 <Stack.Screen
                     name="Initial"
@@ -70,6 +73,13 @@ const App: () => Node = () => {
                 <Stack.Screen
                     name="Main"
                     component={Main}
+                    options={{
+                        headerShown: false
+                    }}
+                />
+                <Stack.Screen
+                    name="Search"
+                    component={Search}
                     options={{
                         headerShown: false
                     }}

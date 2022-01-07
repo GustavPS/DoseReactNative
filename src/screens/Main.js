@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground, FlatList, Animated, ScrollView, TouchableWithoutFeedback, BackHandler, Image } from 'react-native';
+import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground, FlatList, Animated, ScrollView, TouchableWithoutFeedback, BackHandler, Image, TouchableOpacity } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { ContentList } from '../components/media/ContentList';
 import { Poster } from '../components/media/Poster';
@@ -12,8 +12,12 @@ import { Movie } from '../lib/Content/Movie';
 import { useIsFocused } from '@react-navigation/native';
 import { MOVIE_TYPE, SHOW_TYPE } from '../lib/Content/Base';
 import { Episode } from '../lib/Content/Episode';
+import { LeftMenu } from '../components/LeftMenu';
+import { TVEventHandler } from 'react-native';
+
 
 export const Main = ({ navigation }) => {
+    const _tvEventHandler = new TVEventHandler();
 
     const [contentInView, setContentInView] = React.useState(false);
     const [popularMovies, setPopularMovies] = React.useState([]);
@@ -21,10 +25,15 @@ export const Main = ({ navigation }) => {
     const [selectedContent, setSelectedContent] = useStateWithCallbackLazy(null);
     const [movies, setMovies] = useStateWithCallbackLazy([]);
     const [loading, setLoading] = useStateWithCallbackLazy(true);
+    const [firstItemSelected, setFirstItemSelected] = useStateWithCallbackLazy(false);
+    const [focusSideMenu, setFocusSideMenu] = React.useState(false);
+    const [searching, setSearching] = useStateWithCallbackLazy(false);
 
     const isFocused = useIsFocused();
     const backHandlerRef = useRef(null);
     const contentInViewRef = useRef();
+    const firstItemSelectedRef = useRef();
+    firstItemSelectedRef.current = firstItemSelected;
     contentInViewRef.current = contentInView;
 
     const timerRef = useRef(null);
@@ -35,6 +44,28 @@ export const Main = ({ navigation }) => {
     const flatListRef = useRef();
     const splashRef = useRef();
     const contentServer = new ContentServer();
+
+    
+    const _enableTVEventHandler = () => {
+        _tvEventHandler.enable(this, function (cmp, evt) {
+            // On press down
+            if (evt.eventKeyAction == 0) {
+                if (evt && evt.eventType === 'left') {
+                    if (firstItemSelectedRef.current) {
+                        setFocusSideMenu(true);
+                    }
+                } else if (evt && evt.eventType === 'right') {
+                    setFocusSideMenu(false);
+                }
+            }
+        });
+    }
+
+    const _disableTVEventHandler = () => {
+        if (_tvEventHandler) {
+            _tvEventHandler.disable();
+        }
+    }
 
 
     const redirectToLogin = () => {
@@ -89,6 +120,7 @@ export const Main = ({ navigation }) => {
                             id: indx++,
                             title: 'Ongoing Movies',
                             data: ongoingMovies,
+                            ongoingMovies: true
                         });
                     }
                     if (ongoingEpisodes.length > 0) {
@@ -97,7 +129,8 @@ export const Main = ({ navigation }) => {
                             title: 'Ongoing Episodes',
                             data: ongoingEpisodes,
                             backdrop: true,
-                            showTitle: true
+                            showTitle: true,
+                            ongoingEpisodes: true
                         });
                     }
                     if (newlyAddedMovies.length > 0) {
@@ -180,24 +213,34 @@ export const Main = ({ navigation }) => {
         return () => {
             BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
             backHandlerRef.current.remove();
+            _disableTVEventHandler();
         }
     }, []);
+
+    const updateContentList = async () => {
+        // TODO: Update content list
+    }
 
     useEffect(() => {
         if (isFocused) {
             backHandlerRef.current = BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+            _enableTVEventHandler();
+            updateContentList();
         } else {
             BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
             backHandlerRef.current.remove();
+            _disableTVEventHandler();
         }
-
-        if (isFocused && splashRef != null) {
+        if (isFocused && splashRef != null && !searching) {
             splashRef.current.forceFocus();
+        }
+        if (isFocused && searching) {
+            setSearching(false)
         }
     }, [isFocused]);
 
-    const contentFocused = (item, rowId) => {
-        console.log(typeof item);
+    const contentFocused = (item, rowId, isFirstItem) => {
+        setFirstItemSelected(isFirstItem);
         const movie = item;
         if (timerRef.current) {
             clearTimeout(timerRef.current);
@@ -271,7 +314,7 @@ export const Main = ({ navigation }) => {
                 }
 
                 contentServer.getEpisodeMetadata(episodeNumber, selectedContent.id, seasonNumber).then(episode => {
-                    const content = new Episode(episode.name, episode.overview, episode.internalepisodeid, episodeNumber, episode.backdrop);
+                    const content = new Episode(episode.name, episode.overview, episode.internalepisodeid, selectedContent.id, episodeNumber, episode.backdrop);
                     navigation.navigate('Player', {
                         content: content,
                         startTime: time,
@@ -296,48 +339,59 @@ export const Main = ({ navigation }) => {
         }
     }
 
+    const openSearch = () => {
+        setSearching(true, () => {
+            navigation.navigate('Search');
+        });
+    }
+
     return (
-        <View style={styles.container}>
-            {loading &&
-                <Image source={require('../images/loading.gif')} style={styles.loading} />
-            }
+        <View style={styles.page}>
+            <LeftMenu focus={focusSideMenu} openSearch={openSearch}></LeftMenu>
+            <View style={styles.container}>
+                {loading &&
+                    <Image source={require('../images/loading.gif')} style={styles.loading} />
+                }
 
-            <Splash
-                onFocus={splashFocused}
-                ref={splashRef}
-                onPlay={onPlay}
-                onInfo={onInfo}
-            />
-
-            <Animated.View
-                style={[
-                    styles.content,
-                    {
-                        height: heightAnim
-                    }
-                ]}>
-                <FlatList
-                    showsVerticalScrollIndicator={false}
-                    ref={flatListRef}
-                    horizontal={false}
-                    data={movies}
-                    scrollEnabled={true}
-                    keyExtractor={(item) => item.id.toString()}
-                    renderItem={({ item }) => (
-                        <ContentList
-                            onFocus={(selected) => contentFocused(selected, item.id)}
-                            onPress={(selected) => contentSelected(selected, item.id)}
-                            title={item.title}
-                            data={item.data}
-                            useBackdrop={item.backdrop}
-                            showTitle={item.showTitle}
-                            style={{ marginBottom: 10 }}
-                        />
-                    )
-                    }
+                <Splash
+                    onFocus={splashFocused}
+                    ref={splashRef}
+                    onPlay={onPlay}
+                    onInfo={onInfo}
                 />
-            </Animated.View>
+
+
+
+                <Animated.View
+                    style={[
+                        styles.content,
+                        {
+                            height: heightAnim
+                        }
+                    ]}>
+                    <FlatList
+                        showsVerticalScrollIndicator={false}
+                        ref={flatListRef}
+                        horizontal={false}
+                        data={movies}
+                        scrollEnabled={true}
+                        keyExtractor={(item) => item.id.toString()}
+                        renderItem={({ item }) => (
+                            <ContentList
+                                onFocus={(selected, isFirstItem) => contentFocused(selected, item.id, isFirstItem)}
+                                onPress={(selected) => contentSelected(selected, item.id)}
+                                title={item.title}
+                                data={item.data}
+                                useBackdrop={item.backdrop}
+                                showTitle={item.showTitle}
+                            />
+                        )
+                        }
+                    />
+                </Animated.View>
+            </View>
         </View>
+
     );
 };
 
@@ -346,6 +400,11 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         backgroundColor: "#020608"
+    },
+
+    page: {
+        flex: 1,
+        flexDirection: 'row'
     },
 
     loading: {

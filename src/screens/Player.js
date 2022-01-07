@@ -11,9 +11,11 @@ import { SettingsBox } from '../components/Player/SettingsBox';
 import { TVEventHandler } from 'react-native';
 
 export const Player = ({ route, navigation }) => {
-    const { content, startTime } = route.params;
+    const { content, startTime, haveReloaded } = route.params;
+
+    /* STATES */
     const _tvEventHandler = new TVEventHandler();
-    const [videoSource, setVideoSource] = React.useState(null);
+    const [videoSource, setVideoSource] = useStateWithCallbackLazy(null);
     const [languages, setLanguages] = React.useState([]);
     const [playing, setPlaying] = useStateWithCallbackLazy(true);
     const [currentTime, setCurrentTime] = useStateWithCallbackLazy(0);
@@ -31,7 +33,11 @@ export const Player = ({ route, navigation }) => {
     const [currentSeekTime, setCurrentSeekTime] = useStateWithCallbackLazy(0);
     const [loading, setLoading] = useStateWithCallbackLazy(true);
     const [isDoneInitializing, setIsDoneInitializing] = useStateWithCallbackLazy(false);
+    const [nextEpisode, setNextEpisode] = useStateWithCallbackLazy(false);
+    const [showNextEpisodeView, setShowNextEpisodeView] = useStateWithCallbackLazy(false);
+    const [wait, setWait] = useStateWithCallbackLazy(true);
 
+    /* REFS */
     const backHandlerRef = useRef(null);
     const showSettingsRef = useRef();
     const playingRef = useRef();
@@ -42,6 +48,10 @@ export const Player = ({ route, navigation }) => {
     const seekingRef = useRef();
     const loadingRef = useRef();
     const isDoneInitializingRef = useRef();
+    const showNextEpisodeViewRef = useRef();
+    const nextEpisodeRef = useRef();
+    nextEpisodeRef.current = nextEpisode;
+    showNextEpisodeViewRef.current = showNextEpisodeView;
     isDoneInitializingRef.current = isDoneInitializing;
     loadingRef.current = loading;
     seekingRef.current = seeking;
@@ -58,16 +68,18 @@ export const Player = ({ route, navigation }) => {
     const playButtonRef = useRef(null);
     const subtitleButtonRef = useRef(null);
     const resolutionButtonRef = useRef(null);
+    const nextEpisodeButtonRef = useRef(null);
     const videoControlsRef = useRef();
     const contentServer = new ContentServer();
     const HIDE_SETTINGS_TIMEOUT = 8000;
 
+    /* FUNCTIONS */
     const _enableTVEventHandler = () => {
         _tvEventHandler.enable(this, function (cmp, evt) {
             // On press down
             if (evt.eventKeyAction == 0) {
                 // Don't show controls if we're seeking and if the video is doing the initial load
-                let shouldShowSettings = !seekingRef.current && (!loadingRef.current || durationRef.current > 0);
+                let shouldShowSettings = !seekingRef.current && (!loadingRef.current || durationRef.current > 0) && !showNextEpisodeViewRef.current;
 
 
                 if (evt && (evt.eventType === 'right' || evt.eventType === 'left')) {
@@ -152,6 +164,7 @@ export const Player = ({ route, navigation }) => {
 
                 updateWatchtimeTimeout.current = setInterval(() => {
                     contentServer.updateWatchtime(content, transcodingGroupId, currentTimeRef.current, durationRef.current);
+                    content.watchtime = Math.floor(currentTimeRef.current);
                 }, 5000);
 
                 pingTimeout.current = setInterval(() => {
@@ -190,6 +203,7 @@ export const Player = ({ route, navigation }) => {
     }
 
     useEffect(() => {
+
         backHandlerRef.current = BackHandler.addEventListener('hardwareBackPress', handleBackButton);
         _enableTVEventHandler();
         if (playButtonRef.current) {
@@ -198,6 +212,16 @@ export const Player = ({ route, navigation }) => {
         resetHideControlsTimeout();
 
         contentServer.initialize().then(() => {
+            if (content.isEpisode()) {
+                contentServer.getNextEpisode(content).then(nextEpisode => {
+                    setNextEpisode(nextEpisode);
+                }).catch(err => {
+                    console.log(err);
+                    setNextEpisode(false);
+                });
+            }
+
+
             Promise.all([contentServer.getAccessToken(), contentServer.getUrl(), contentServer.getContentLanguages(content)]).then(([accessToken, contentServerUrl, availableLanguages]) => {
                 setLanguages(availableLanguages);
                 let preferredLanguage = findPreferredLanguage(availableLanguages);
@@ -212,12 +236,21 @@ export const Player = ({ route, navigation }) => {
                     uri: content.getSource(contentServerUrl, accessToken, preferredLanguage.stream_index),
                     type: "m3u8"
                 }
-                setVideoSource(videoSource);
+                console.log("setting", videoSource);
+                setVideoSource(videoSource, () => {
+                    setTimeout(() => {
+                        setWait(false);
+                    }, 1000);
+                });
 
-            });
+            }).catch(err => {
+                console.log(err);
+            })
         });
 
         return () => {
+            console.log("UNMOUNTING ST UFF")
+            setVideoSource(null);
             if (hideSettingsTimeout.current) {
                 clearTimeout(hideSettingsTimeout.current);
             }
@@ -264,7 +297,15 @@ export const Player = ({ route, navigation }) => {
         setLoading(false);
         if (duration > 0) {
             setProgress(progress.currentTime / duration);
+            if (progress.currentTime / duration > 0.90 && !showNextEpisodeViewRef.current && nextEpisodeRef.current != false) {
+                setShowNextEpisodeView(true, () => {
+                    nextEpisodeButtonRef.current.setNativeProps({
+                        hasTVPreferredFocus: true
+                    });
+                });
+            }
         }
+
     }
 
     // Function that converts time in seconds to a string in the format HH:MM:SS
@@ -319,10 +360,25 @@ export const Player = ({ route, navigation }) => {
         console.log(`onError at time ${timeAtError}`, data);
     }
 
+    const playNextEpisode = () => {
+        navigation.replace("Player", { content: nextEpisodeRef.current, startTime: 0 });
+    }
+
     const updateWatchTime = () => {
         if (playing) {
         }
     }
+
+    useEffect(() => {
+        if (videoSource != null) {
+            console.log("not null")
+            console.log({
+                videoSource: videoSource.uri,
+                type: videoSource.type,
+            })
+        }
+
+    }, [videoSource])
 
     return (
         <View style={styles.container}>
@@ -331,10 +387,13 @@ export const Player = ({ route, navigation }) => {
                 <Image source={require('../images/loading.gif')} style={styles.loading} />
             }
 
-            {videoSource != null &&
+            {videoSource != null && videoSource.type == "m3u8" && videoSource.uri != "" && !wait &&
                 <Video
                     ref={videoPlayerRef}
-                    source={videoSource}
+                    source={{
+                        uri: videoSource.uri,
+                        type: videoSource.type
+                    }}
                     style={styles.videoPlayer}
                     paused={!playing}
                     onLoad={onVideoLoad}
@@ -465,6 +524,22 @@ export const Player = ({ route, navigation }) => {
                     <Text style={styles.progressText}>{`${formatTime(duration)}`}</Text>
                 </View>
             }
+            {showNextEpisodeView &&
+                <View style={styles.nextEpisodeView}>
+                    <TouchableOpacity
+                        activeOpacity={1.0}
+                        style={[
+                            styles.nextEpisodeButton
+                        ]}
+                        onPress={playNextEpisode}
+                        ref={nextEpisodeButtonRef}
+                    >
+                        <View style={styles.nextEpisodeInnerColor}></View>
+                        <Text style={styles.nextEpisodeText}>Next episode {Math.floor(duration - currentTime)}</Text>
+                    </TouchableOpacity>
+                </View>
+
+            }
         </View>
 
 
@@ -527,7 +602,25 @@ const styles = StyleSheet.create({
         borderRightWidth: 0,
         padding: 5,
         borderRadius: 5,
+    },
 
+    nextEpisodeView: {
+        position: "absolute",
+        bottom: 50,
+        right: 25,
+        flex: 1
+    },
+
+    nextEpisodeButton: {
+        backgroundColor: 'white',
+        position: 'relative',
+        padding: 10,
+        borderRadius: 5,
+        flex: 1,
+    },
+
+    nextEpisodeText: {
+        color: 'black'
     }
 
 })

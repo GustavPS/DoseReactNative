@@ -2,12 +2,13 @@ import { Base, EPISODE_TYPE } from './Base.js';
 
 export class Episode extends Base {
 
-    constructor(name, overview, internal_id, episodeNumber, season_number, backdrop_path) {
+    constructor(name, overview, internal_id, show_id, episodeNumber, season_number, backdrop_path) {
         super(EPISODE_TYPE);
 
         this.title = name;
         this.description = overview;
         this.id = internal_id;
+        this.show_id = show_id;
         this.episodeNumber = episodeNumber;
         this.season_number = season_number;
         this.backdrop = backdrop_path;
