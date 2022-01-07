@@ -51,7 +51,7 @@ export const Main = ({ navigation }) => {
             // On press down
             if (evt.eventKeyAction == 0) {
                 if (evt && evt.eventType === 'left') {
-                    if (firstItemSelectedRef.current) {
+                    if (firstItemSelectedRef.current && contentInViewRef.current) {
                         setFocusSideMenu(true);
                     }
                 } else if (evt && evt.eventType === 'right') {
