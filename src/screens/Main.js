@@ -105,7 +105,8 @@ export const Main = ({ navigation }) => {
                 const newlyReleasedMoviesPromise = contentServer.getNewlyReleasedMovies();
                 const newlyAddedShowsPromise = contentServer.getNewlyAddedShows();
                 const ongoingEpisodesPromise = contentServer.getOngoingEpisodes();
-                Promise.all([popularMoviesPromise, ongoingMoviesPromise, movieWatchlistPromise, newlyAddedMoviesPromise, newlyReleasedMoviesPromise, newlyAddedShowsPromise, ongoingEpisodesPromise]).then(([popularMovies, ongoingMovies, movieWatchlist, newlyAddedMovies, newlyReleasedMovies, newlyAddedShows, ongoingEpisodes]) => {
+                const newlyAddedEpisodesPromise = contentServer.getNewlyAddedEpisodes();
+                Promise.all([popularMoviesPromise, ongoingMoviesPromise, movieWatchlistPromise, newlyAddedMoviesPromise, newlyReleasedMoviesPromise, newlyAddedShowsPromise, ongoingEpisodesPromise, newlyAddedEpisodesPromise]).then(([popularMovies, ongoingMovies, movieWatchlist, newlyAddedMovies, newlyReleasedMovies, newlyAddedShows, ongoingEpisodes, newlyAddedEpisodes]) => {
                     const moviesToAdd = [];
                     let indx = 0;
                     if (popularMovies.length > 0) {
@@ -145,6 +146,13 @@ export const Main = ({ navigation }) => {
                             id: indx++,
                             title: 'New Shows',
                             data: newlyAddedShows,
+                        });
+                    }
+                    if (newlyAddedEpisodes.length > 0) {
+                        moviesToAdd.push({
+                            id: indx++,
+                            title: 'New Episodes',
+                            data: newlyAddedEpisodes,
                         });
                     }
                     if (newlyReleasedMovies.length > 0) {

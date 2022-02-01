@@ -499,6 +499,40 @@ export class ContentServer {
         });
     }
 
+    getNewlyAddedEpisodes() {
+        return new Promise((resolve, reject) => {
+            this.token.validateContentToken().then(token => {
+                const url = `${this.url}/api/series/list/episodes?token=${token}`;
+                console.log(url)
+                fetch(url).then(result => {
+                    result.json().then(data => {
+                        const episodes = data.result;
+                        const returnData = [];
+                        for (const episode of episodes) {
+                            let backdrop, poster;
+                            for (const image of episode.images) {
+                                if (image.type === "POSTER" && image.active) {
+                                    poster = image.path;
+                                } else if (image.type === "BACKDROP" && image.active) {
+                                    backdrop = image.path;
+                                }
+                            }
+                            const episodeToAdd = new Episode(episode.title, episode.overview, episode.internalepisodeid, episode.show_id, episode.episode, episode.season, backdrop);
+                            episodeToAdd.setIncludeSeasonInTitle(true);
+                            episodeToAdd.setPoster(poster);
+                            returnData.push(episodeToAdd);
+                        }
+                        resolve(returnData);
+                    }).catch(err => {
+                        reject(err);
+                    });
+                }).catch(err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+
     /**
      * Get the transcoding group id from the server
      * 

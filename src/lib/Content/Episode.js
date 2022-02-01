@@ -15,6 +15,11 @@ export class Episode extends Base {
         this.watchtime = 0;
         this.runTime = 0;
         this.includeSeasonInTitle = false;
+        this.poster = null; // TODO: set default poster
+    }
+
+    setPoster(poster) {
+        this.poster = poster;
     }
 
     setIncludeSeasonInTitle(include) {
