@@ -75,13 +75,16 @@ export class ContentServer {
         fetch(url).then(result => {
           result.json().then(data => {
             const movies = data.result;
-            const returnData = [];
+            const result = {
+              title: 'Popular movies',
+              content: []
+            };
             for (const movie of movies) {
-              returnData.push(
-                new Movie(movie.title, movie.overview, movie.id, movie.images)
+              result.content.push(
+                new Movie(movie.title, movie.overview, movie.id, movie.images, movie.trailer)
               );
             }
-            resolve(returnData);
+            resolve(result);
           }).catch(err => {
             reject(err);
           });
@@ -104,13 +107,16 @@ export class ContentServer {
         fetch(url).then(result => {
           result.json().then(data => {
             const movies = data.result;
-            const returnData = [];
+            const result = {
+              title: 'Watchlist',
+              content: []
+            };
             for (const movie of movies) {
-              returnData.push(
-                new Movie(movie.title, movie.overview, movie.id, movie.images)
+              result.content.push(
+                new Movie(movie.title, movie.overview, movie.id, movie.images, movie.trailer)
               );
             }
-            resolve(returnData);
+            resolve(result);
           }).catch(err => {
             reject(err);
           });
@@ -156,13 +162,16 @@ export class ContentServer {
         fetch(url).then(result => {
           result.json().then(data => {
             const movies = data.result;
-            const returnData = [];
+            const result = {
+              title: genre,
+              content: []
+            };
             for (const movie of movies) {
-              returnData.push(
-                new Movie(movie.title, movie.overview, movie.id, movie.images)
+              result.content.push(
+                new Movie(movie.title, movie.overview, movie.id, movie.images, movie.trailer)
               );
             }
-            resolve(returnData);
+            resolve(result);
           }).catch(err => {
             reject(err);
           });
@@ -186,7 +195,10 @@ export class ContentServer {
         fetch(url).then(result => {
           result.json().then(data => {
             const shows = data.result;
-            const returnData = [];
+            const result = {
+              title: `${genre} TV Shows`,
+              content: []
+            };
             for (const show of shows) {
               const showToAdd = new Show(show.title, show.overview, show.id, show.images);
               if (show.nextEpisodeForUser != null) {
@@ -195,9 +207,9 @@ export class ContentServer {
               if (show.episodeProgress != null) {
                 showToAdd.setResumeEpisode(show.episodeProgress.episode, show.episodeProgress.episode_id, show.episodeProgress.season_number, show.episodeProgress.time);
               }
-              returnData.push(showToAdd);
+              result.content.push(showToAdd);
             }
-            resolve(returnData);
+            resolve(result);
           }).catch(err => {
             reject(err);
           });
@@ -271,7 +283,7 @@ export class ContentServer {
             const returnData = [];
             for (const movie of movies) {
               returnData.push(
-                new Movie(movie.title, movie.overview, movie.id, movie.images)
+                new Movie(movie.title, movie.overview, movie.id, movie.images, movie.trailer)
               );
             }
             resolve(returnData);
@@ -297,13 +309,16 @@ export class ContentServer {
         fetch(url).then(result => {
           result.json().then(data => {
             const movies = data.result;
-            const returnData = [];
+            const result = {
+              title: 'Newly added movies',
+              content: []
+            };
             for (const movie of movies) {
-              returnData.push(
-                new Movie(movie.title, movie.overview, movie.id, movie.images)
+              result.content.push(
+                new Movie(movie.title, movie.overview, movie.id, movie.images, movie.trailer)
               );
             }
-            resolve(returnData);
+            resolve(result);
           }).catch(err => {
             reject(err);
           });
@@ -326,13 +341,16 @@ export class ContentServer {
         fetch(url).then(result => {
           result.json().then(data => {
             const movies = data.result;
-            const returnData = [];
+            const result = {
+              title: 'Newly released movies',
+              content: []
+            };
             for (const movie of movies) {
-              returnData.push(
-                new Movie(movie.title, movie.overview, movie.id, movie.images)
+              result.content.push(
+                new Movie(movie.title, movie.overview, movie.id, movie.images, movie.trailer)
               );
             }
-            resolve(returnData);
+            resolve(result);
           }).catch(err => {
             reject(err);
           });
@@ -352,17 +370,25 @@ export class ContentServer {
     return new Promise((resolve, reject) => {
       this.token.validateContentToken().then(token => {
         const url = `${this.url}/api/movies/list/ongoing?token=${token}`;
-        console.log(url)
-        fetch(url).then(result => {
+        fetch(url, {
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': 0
+          }
+        }).then(result => {
           result.json().then(data => {
             const movies = data.result;
-            const returnData = [];
+            const result = {
+              title: 'Ongoing movies',
+              content: []
+            };
             for (const movie of movies) {
-              returnData.push(
-                new Movie(movie.title, movie.overview, movie.id, movie.images, movie.watchtime, movie.runtime)
+              result.content.push(
+                new Movie(movie.title, movie.overview, movie.id, movie.images, movie.trailer, movie.watchtime, movie.runtime)
               );
             }
-            resolve(returnData);
+            resolve(result);
           }).catch(err => {
             reject(err);
           });
@@ -385,7 +411,10 @@ export class ContentServer {
         fetch(url).then(result => {
           result.json().then(data => {
             const shows = data.result;
-            const returnData = [];
+            const result = {
+              title: 'Newly added TV Shows',
+              content: []
+            };
             for (const show of shows) {
               const showToAdd = new Show(show.title, show.overview, show.id, show.images);
               if (show.nextEpisodeForUser != null) {
@@ -394,9 +423,9 @@ export class ContentServer {
               if (show.episodeProgress != null) {
                 showToAdd.setResumeEpisode(show.episodeProgress.episode, show.episodeProgress.episode_id, show.episodeProgress.season_number, show.episodeProgress.time);
               }
-              returnData.push(showToAdd);
+              result.content.push(showToAdd);
             }
-            resolve(returnData);
+            resolve(result);
           }).catch(err => {
             reject(err);
           });
@@ -468,11 +497,20 @@ export class ContentServer {
     return new Promise((resolve, reject) => {
       this.token.validateContentToken().then(token => {
         const url = `${this.url}/api/series/list/ongoing?token=${token}`;
-        fetch(url).then(result => {
+        fetch(url, {
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': 0
+          }
+        }).then(result => {
           result.json().then(data => {
             const ongoingEpisodes = data.ongoing;
             const upcomingEpisodes = data.upcoming;
-            const returnData = [];
+            const result = {
+              title: 'Ongoing episodes',
+              content: []
+            };
             for (const episode of ongoingEpisodes) {
               let backdrop, poster;
               for (const image of episode.images) {
@@ -482,13 +520,27 @@ export class ContentServer {
                   backdrop = image.path;
                 }
               }
-              const episodeToAdd = new Episode(episode.name, episode.overview, episode.internalepisodeid, episode.show_id, episode.episode_number, episode.season_number, backdrop);
+              if (episode.season_poster != null) {
+                poster = episode.season_poster;
+              }
+
+              const episodeToAdd = new Episode(
+                episode.name,
+                episode.overview,
+                episode.internalepisodeid,
+                episode.show_id,
+                episode.episode_number,
+                episode.season_number,
+                backdrop,
+                episode.show_title
+              );
               episodeToAdd.setIncludeSeasonInTitle(true);
               episodeToAdd.setWatchtime(episode.time_watched);
               episodeToAdd.setRuntime(episode.total_time);
-              returnData.push(episodeToAdd);
+              episodeToAdd.setPoster(poster);
+              result.content.push(episodeToAdd);
             }
-            resolve(returnData);
+            resolve(result);
           }).catch(err => {
             reject(err);
           });
@@ -507,7 +559,10 @@ export class ContentServer {
         fetch(url).then(result => {
           result.json().then(data => {
             const episodes = data.result;
-            const returnData = [];
+            const result = {
+              title: 'Newly added episodes',
+              content: []
+            };
             for (const episode of episodes) {
               let backdrop, poster;
               for (const image of episode.images) {
@@ -517,12 +572,25 @@ export class ContentServer {
                   backdrop = image.path;
                 }
               }
-              const episodeToAdd = new Episode(episode.title, episode.overview, episode.internalepisodeid, episode.show_id, episode.episode, episode.season, backdrop);
+              if (episode.season_poster != null) {
+                poster = episode.season_poster;
+              }
+
+              const episodeToAdd = new Episode(
+                episode.title,
+                episode.overview,
+                episode.internalepisodeid,
+                episode.show_id,
+                episode.episode,
+                episode.season,
+                backdrop,
+                episode.show_title
+              );
               episodeToAdd.setIncludeSeasonInTitle(true);
               episodeToAdd.setPoster(poster);
-              returnData.push(episodeToAdd);
+              result.content.push(episodeToAdd);
             }
-            resolve(returnData);
+            resolve(result);
           }).catch(err => {
             reject(err);
           });
@@ -531,6 +599,41 @@ export class ContentServer {
         });
       });
     });
+  }
+
+  getMovieTrailer(content) {
+    return new Promise((resolve, reject) => {
+      this.token.validateContentToken().then(async (token) => {
+        const baseUrl = await this.getUrl();
+        resolve(`${baseUrl}/api/trailer/${content.id}?type=MOVIE&token=${token}`);
+      }).catch(err => {
+        reject(err);
+      })
+    });
+  }
+
+  async listAllSections() {
+    const genres = await this.getGenres();
+    let promises = [
+      this.getPopularMovies(),
+      this.getOngoingMovies(),
+      this.getMovieWatchlist(),
+      this.getNewlyAddedMovies(),
+      this.getNewlyReleasedMovies(),
+      this.getNewlyAddedShows(),
+      this.getOngoingEpisodes(),
+      this.getNewlyAddedEpisodes()
+    ];
+
+    // Append the genres to the promises array
+    promises = promises.concat(genres.flatMap(
+      (genre) =>
+        [
+          this.getMoviesByGenre(genre.name),
+          this.getShowsByGenre(genre.name)
+        ]
+    ));
+    return Promise.all(promises);
   }
 
   /**
@@ -620,7 +723,7 @@ export class ContentServer {
 
     return new Promise(resolve => {
       fetch(url).then(result => {
-        result.json().then(data=> {
+        result.json().then(data => {
           resolve(data.subtitles);
         });
       });
@@ -633,7 +736,7 @@ export class ContentServer {
     const url = `${this.url}/api/video/${content.id}/getResolution?type=${type}&token=${token}`;
 
     return new Promise(resolve => {
-      fetch(url).then(result =>{
+      fetch(url).then(result => {
         result.json().then(data => {
           resolve(data);
         });
@@ -658,7 +761,7 @@ export class ContentServer {
             const shows = data.series;
             for (const movie of movies) {
               returnData.push(
-                new Movie(movie.title, movie.overview, movie.id, movie.images)
+                new Movie(movie.title, movie.overview, movie.id, movie.images, movie.trailer)
               );
             }
             for (const show of shows) {

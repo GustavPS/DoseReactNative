@@ -1,6 +1,6 @@
 
 import React, { useRef, useImperativeHandle } from 'react';
-import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground, TouchableOpacity, Image } from 'react-native';
+import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground, TouchableOpacity, Image, findNodeHandle } from 'react-native';
 
 export const PlayerButton = React.forwardRef((props, ref) => {
     const type = props.type;
@@ -15,6 +15,8 @@ export const PlayerButton = React.forwardRef((props, ref) => {
         image = require('../../images/subtitles.png');
     } else if (type === 'settings') {
         image = require('../../images/setting.png');
+    } else if (type === 'info') {
+        image = require('../../images/info.png');
     }
 
     useImperativeHandle(ref, () => ({
@@ -48,6 +50,7 @@ export const PlayerButton = React.forwardRef((props, ref) => {
             onFocus={onFocus}
             onBlur={() => setFocused(false)}
             activeOpacity={1.0}
+            nextFocusUp={props.blockFocusUp ? findNodeHandle(buttonRef.current) : null}
         >
             <Image
                 source={image}

@@ -1,15 +1,7 @@
-import React, { useRef, useEffect, useState, useTransition } from 'react';
-import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, TouchableWithoutFeedback, TouchableOpacity, FlatList, BackHandler, Image, Animated, Easing } from 'react-native';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
-import * as SecureStore from 'expo-secure-store';
+import React, { useRef, useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Video, { TextTrackType } from 'react-native-video';
 import { ContentServer } from '../lib/ContentServer';
-import { PlayerButton } from '../components/Player/PlayerButton';
-import { useStateWithCallbackLazy } from 'use-state-with-callback';
-import Slider from '@react-native-community/slider';
-import { SettingsBox } from '../components/Player/SettingsBox';
-import { TVEventHandler } from 'react-native';
-import { Movie } from '../lib/Content/Movie';
 import { DirectplayVideo } from '../components/VideoPlayer/DirectplayVideo';
 import { HlsVideo } from '../components/VideoPlayer/HlsVideo';
 
@@ -24,7 +16,7 @@ export const Player = ({ route, navigation }) => {
   const [subtitles, setSubtitles] = useState([]);
   const [selectedSubtitle, setSelectedSubtitle] = useState(null);
   const [resolutions, setResolutions] = useState([]);
-  const [currentTime, setCurrentTime] = useState(startTime);
+  const [currentTime, setCurrentTime] = useState(startTime ?? 0);
   const [showNextEpisode, setShowNextEpisode] = useState(false);
   const [nextEpisodeExists, setNextEpisodeExists] = useState(false);
 
