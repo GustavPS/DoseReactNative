@@ -154,6 +154,7 @@ export class HlsVideo extends Component {
               value: this.state.resolution
             }}
             progressUpdateInterval={1000}
+            useTextureView={false}
           />
         }
 
