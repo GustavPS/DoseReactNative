@@ -7,6 +7,11 @@ import Token from '../lib/Token';
 export const Initial = ({ navigation }) => {
     useEffect(() => {
         const token = new Token();
+        navigation.navigate('Genre', {
+            genre: 'action',
+            type: 'movie'
+          });
+         /*
         token.isMainTokenStored().then(isMainTokenStored => {
             if (isMainTokenStored) {
                 token.validateContentToken().then(() => {
@@ -19,6 +24,7 @@ export const Initial = ({ navigation }) => {
                 navigation.navigate('MainServer');
             }
         });
+        */
     }, []);
 
     return (

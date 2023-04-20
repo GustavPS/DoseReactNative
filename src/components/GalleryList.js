@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { FlatList, StyleSheet, View } from "react-native"
 import Gallery from "./Gallery";
 
-export const GalleryList = ({ sections, style, onFocus, onItemSelected }) => {
+export const GalleryList = ({ sections, style, onFocus, onItemSelected, onViewMore, hideViewMoreButton }) => {
   const sectionListRef = useRef();
 
   const handleItemFocus = ({ item, index }) => {
@@ -25,13 +25,14 @@ export const GalleryList = ({ sections, style, onFocus, onItemSelected }) => {
     });
   }
 
+
   return (
     <FlatList
       style={[styles.sections, style]}
       showsVerticalScrollIndicator={false}
       decelerationRate={0}
       data={sections}
-      keyExtractor={(item) => item.title}
+      keyExtractor={(item, index) => index}
       ref={sectionListRef}
       scrollEnabled={false}
       initialScrollIndex={0}
@@ -46,7 +47,9 @@ export const GalleryList = ({ sections, style, onFocus, onItemSelected }) => {
             index={index}
             onFocus={handleItemFocus}
             onViewMoreFocus={onViewMoreFocus}
+            onViewMorePress={onViewMore}
             onPress={onItemSelected}
+            hideViewMoreButton={hideViewMoreButton}
           />
         )
       }}

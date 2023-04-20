@@ -15,21 +15,21 @@ import { MainServer } from './src/screens/setup/MainServer';
 import { Main } from './src/screens/Main';
 
 import {
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    useColorScheme,
-    View,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  useColorScheme,
+  View,
 } from 'react-native';
 
 import {
-    Colors,
-    DebugInstructions,
-    Header,
-    LearnMoreLinks,
-    ReloadInstructions,
+  Colors,
+  DebugInstructions,
+  Header,
+  LearnMoreLinks,
+  ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 import { Connect } from './src/screens/setup/Connect';
 import Token from './src/lib/Token';
@@ -40,121 +40,129 @@ import { Initial } from './src/screens/Initial';
 import { ShowInfo } from './src/screens/info/ShowInfo';
 import { SeasonInfo } from './src/screens/info/SeasonInfo';
 import { Search } from './src/screens/Search';
+import { Genre } from './src/screens/Genre';
 
 const Stack = createNativeStackNavigator();
 
 const App: () => Node = () => {
-    const isDarkMode = true; //useColorScheme() === 'dark';
-    const [signedIn, setSignedIn] = React.useState(false);
+  const isDarkMode = true; //useColorScheme() === 'dark';
+  const [signedIn, setSignedIn] = React.useState(false);
 
-    const backgroundStyle = {
-        backgroundColor: Colors.darker
-    };
+  const backgroundStyle = {
+    backgroundColor: Colors.darker
+  };
 
 
-    return (
-        <NavigationContainer style={{ backgroundColor: Colors.darker }}>
-            <Stack.Navigator
-                initialRouteName="Initial"
-                screenOptions={{
-                    cardStyle: backgroundStyle,
-                    headerStyle: { elevation: 0 },
-                    unmountOnBlur: true,
-                }}
-                unmountOnBlur={true}
-            >
-                <Stack.Screen
-                    name="Initial"
-                    component={Initial}
-                    options={{
-                        headerShown: false,
-                    }}
-                />
-                <Stack.Screen
-                    name="Main"
-                    component={Main}
-                    options={{
-                        headerShown: false
-                    }}
-                />
-                <Stack.Screen
-                    name="Search"
-                    component={Search}
-                    options={{
-                        headerShown: false
-                    }}
-                />
-                <Stack.Screen
-                    name="MainServer"
-                    component={MainServer}
-                    options={{
-                        headerShown: false,
-                    }}
-                />
-                <Stack.Screen
-                    name="MovieInfo"
-                    component={MovieInfo}
-                    options={{
-                        headerShown: false,
-                    }}
-                />
-                <Stack.Screen
-                    name="ShowInfo"
-                    component={ShowInfo}
-                    options={{
-                        headerShown: false,
-                    }}
-                />
-                <Stack.Screen
-                    name="SeasonInfo"
-                    component={SeasonInfo}
-                    options={{
-                        headerShown: false,
-                    }}
-                />
-                <Stack.Screen
-                    name="Player"
-                    component={Player}
-                    options={{
-                        headerShown: false
-                    }}
-                />
-                <Stack.Screen
-                    name="Connect"
-                    component={Connect}
-                    options={{
-                        headerShown: false
-                    }}
-                />
-                <Stack.Screen
-                    name="ContentServer"
-                    component={ContentServerSetup}
-                    options={{
-                        headerShown: false
-                    }}
-                />
-            </Stack.Navigator>
-        </NavigationContainer >
-    );
+  return (
+    <NavigationContainer style={{ backgroundColor: Colors.darker }}>
+      <Stack.Navigator
+        initialRouteName="Initial"
+        screenOptions={{
+          cardStyle: backgroundStyle,
+          headerStyle: { elevation: 0 },
+          unmountOnBlur: true,
+        }}
+        unmountOnBlur={true}
+      >
+        <Stack.Screen
+          name="Initial"
+          component={Initial}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="Main"
+          component={Main}
+          options={{
+            headerShown: false
+          }}
+        />
+        <Stack.Screen
+          name="Search"
+          component={Search}
+          options={{
+            headerShown: false
+          }}
+        />
+        <Stack.Screen
+          name="MainServer"
+          component={MainServer}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="MovieInfo"
+          component={MovieInfo}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="ShowInfo"
+          component={ShowInfo}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="SeasonInfo"
+          component={SeasonInfo}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="Player"
+          component={Player}
+          options={{
+            headerShown: false
+          }}
+        />
+        <Stack.Screen
+          name="Connect"
+          component={Connect}
+          options={{
+            headerShown: false
+          }}
+        />
+        <Stack.Screen
+          name="ContentServer"
+          component={ContentServerSetup}
+          options={{
+            headerShown: false
+          }}
+        />
+        <Stack.Screen
+          name="Genre"
+          component={Genre}
+          options={{
+            headerShown: false
+          }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer >
+  );
 };
 
 const styles = StyleSheet.create({
-    sectionContainer: {
-        marginTop: 32,
-        paddingHorizontal: 24,
-    },
-    sectionTitle: {
-        fontSize: 24,
-        fontWeight: '600',
-    },
-    sectionDescription: {
-        marginTop: 8,
-        fontSize: 18,
-        fontWeight: '400',
-    },
-    highlight: {
-        fontWeight: '700',
-    },
+  sectionContainer: {
+    marginTop: 32,
+    paddingHorizontal: 24,
+  },
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: '600',
+  },
+  sectionDescription: {
+    marginTop: 8,
+    fontSize: 18,
+    fontWeight: '400',
+  },
+  highlight: {
+    fontWeight: '700',
+  },
 });
 
 export default App;

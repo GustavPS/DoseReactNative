@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { ContentServer } from '../lib/ContentServer';
-import Video from 'react-native-video';
-import { LinearGradient } from 'expo-linear-gradient';
 import { GalleryList } from '../components/GalleryList';
 import { useIsFocused } from '@react-navigation/native';
+import { Splash } from '../components/Splash';
 
 
 export const Main = ({ navigation }) => {
@@ -64,63 +63,27 @@ export const Main = ({ navigation }) => {
     }
   }
 
+  const onViewMore = (genre) => {
+    console.log(genre);
+    navigation.navigate('Genre', {
+      genre: genre,
+      type: 'movie'
+    });
+  }
+
   return (
     <View style={styles.container}>
-      {selectedContent != null &&
-        <View
-          style={styles.background}
-        >
-          {trailer != null &&
-            <Video
-              focusable={false}
-              source={{
-                uri: trailer
-              }}
-              style={styles.trailer}
-              paused={false}
-              resizeMode='cover'
-              repeat={true}
-            />
-          }
-          {trailer == null &&
-            <Image
-              source={{ uri: `https://image.tmdb.org/t/p/original/${selectedContent.backdrop}` }}
-              style={styles.trailer}
-              resizeMode='contain'
-            />
-          }
-
-          <View style={styles.textContainer}>
-            {selectedContent.logo != null &&
-              <Image
-                source={{ uri: `https://image.tmdb.org/t/p/original/${selectedContent.logo}` }}
-                style={styles.logo}
-                resizeMode='contain'
-              />
-            }
-            {selectedContent.logo == null && selectedContent.isEpisode() &&
-              <>
-                <Text style={styles.title}>{selectedContent.showTitle}</Text>
-                <Text style={styles.subtitle}>{selectedContent.getTitle()}</Text>
-              </>
-            }
-            {selectedContent.logo == null && !selectedContent.isEpisode() &&
-              <Text style={styles.title}>{selectedContent.getTitle()}</Text>
-            }
-            <Text style={styles.description}>{selectedContent.description}</Text>
-          </View>
-        </View>
-      }
-      <LinearGradient
-        colors={['#00000000', '#000000']}
-        style={{ height: '100%', width: '100%' }}>
-      </LinearGradient>
+      <Splash
+        item={selectedContent}
+        trailer={trailer}
+      />
 
       <GalleryList
         sections={sections}
         style={styles.sections}
         onFocus={onFocusContent}
         onItemSelected={onItemSelected}
+        onViewMore={onViewMore}
       />
     </View>
   )
