@@ -138,6 +138,7 @@ export class DirectplayVideo extends Component {
               value: this.state.subtitle
             }}
             progressUpdateInterval={1000}
+            useTextureView={false}
           />
         }
 
