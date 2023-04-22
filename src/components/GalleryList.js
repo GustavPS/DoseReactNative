@@ -25,6 +25,9 @@ export const GalleryList = ({ sections, style, onFocus, onItemSelected, onViewMo
     });
   }
 
+  const getSectionTitle = (section) => {
+    return section.type === 'shows' ? `${section.title} Shows` : section.title;
+  }
 
   return (
     <FlatList
@@ -41,15 +44,15 @@ export const GalleryList = ({ sections, style, onFocus, onItemSelected, onViewMo
       renderItem={({ item, index }) => {
         return (
           <Gallery
-            title={item.title}
+            title={getSectionTitle(item)}
             items={item.content}
             rowNumber={index}
             index={index}
             onFocus={handleItemFocus}
             onViewMoreFocus={onViewMoreFocus}
-            onViewMorePress={onViewMore}
+            onViewMorePress={() => onViewMore(item.title, item.type)}
             onPress={onItemSelected}
-            hideViewMoreButton={hideViewMoreButton}
+            hideViewMoreButton={hideViewMoreButton || !item.canLoadMore}
           />
         )
       }}

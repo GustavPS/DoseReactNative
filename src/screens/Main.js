@@ -63,11 +63,10 @@ export const Main = ({ navigation }) => {
     }
   }
 
-  const onViewMore = (genre) => {
-    console.log(genre);
+  const onViewMore = (genre, type) => {
     navigation.navigate('Genre', {
       genre: genre,
-      type: 'movie'
+      type: type
     });
   }
 

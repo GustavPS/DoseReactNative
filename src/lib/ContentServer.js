@@ -77,7 +77,9 @@ export class ContentServer {
             const movies = data.result;
             const result = {
               title: 'Popular movies',
-              content: []
+              content: [],
+              type: 'movies',
+              canLoadMore: false
             };
             for (const movie of movies) {
               result.content.push(
@@ -109,7 +111,9 @@ export class ContentServer {
             const movies = data.result;
             const result = {
               title: 'Watchlist',
-              content: []
+              content: [],
+              type: 'movies',
+              canLoadMore: false
             };
             for (const movie of movies) {
               result.content.push(
@@ -155,22 +159,30 @@ export class ContentServer {
    * @param {string} genre - The genre to get movies for 
    * @returns 
    */
-  getMoviesByGenre(genre) {
+  getMoviesByGenre(genre, fetchAll=false) {
     return new Promise((resolve, reject) => {
       this.token.validateContentToken().then(token => {
-        const url = `${this.url}/api/movies/list/genre/${genre}?token=${token}`;
+        let url = `${this.url}/api/movies/list/genre/${genre}?token=${token}`;
+        if (fetchAll) {
+          url += '&limit=ALL';
+        } else {
+          url += '&limit=20'
+        }
         fetch(url).then(result => {
           result.json().then(data => {
             const movies = data.result;
             const result = {
               title: genre,
-              content: []
+              content: [],
+              type: 'movies',
+              canLoadMore: false
             };
             for (const movie of movies) {
               result.content.push(
                 new Movie(movie.title, movie.overview, movie.id, movie.images, movie.trailer)
               );
             }
+            result.canLoadMore = result.content.length === 20 && !fetchAll;
             resolve(result);
           }).catch(err => {
             reject(err);
@@ -188,16 +200,23 @@ export class ContentServer {
    * @param {string} genre - The genre to get shows for
    * @returns 
    */
-  getShowsByGenre(genre) {
+  getShowsByGenre(genre, fetchAll=false) {
     return new Promise((resolve, reject) => {
       this.token.validateContentToken().then(token => {
-        const url = `${this.url}/api/series/list/genre/${genre}?token=${token}`;
+        let url = `${this.url}/api/series/list/genre/${genre}?token=${token}`;
+        if (fetchAll) {
+          url += '&limit=ALL';
+        } else {
+          url += '&limit=20';
+        }
         fetch(url).then(result => {
           result.json().then(data => {
             const shows = data.result;
             const result = {
-              title: `${genre} TV Shows`,
-              content: []
+              title: genre,
+              content: [],
+              type: 'shows',
+              canLoadMore: false
             };
             for (const show of shows) {
               const showToAdd = new Show(show.title, show.overview, show.id, show.images);
@@ -209,6 +228,8 @@ export class ContentServer {
               }
               result.content.push(showToAdd);
             }
+            result.canLoadMore = result.content.length === 20 && !fetchAll;
+
             resolve(result);
           }).catch(err => {
             reject(err);
@@ -311,7 +332,9 @@ export class ContentServer {
             const movies = data.result;
             const result = {
               title: 'Newly added movies',
-              content: []
+              content: [],
+              type: 'movies',
+              canLoadMore: false
             };
             for (const movie of movies) {
               result.content.push(
@@ -343,7 +366,9 @@ export class ContentServer {
             const movies = data.result;
             const result = {
               title: 'Newly released movies',
-              content: []
+              content: [],
+              type: 'movies',
+              canLoadMore: false
             };
             for (const movie of movies) {
               result.content.push(
@@ -381,7 +406,9 @@ export class ContentServer {
             const movies = data.result;
             const result = {
               title: 'Ongoing movies',
-              content: []
+              content: [],
+              type: 'movies',
+              canLoadMore: false
             };
             for (const movie of movies) {
               result.content.push(
@@ -413,7 +440,9 @@ export class ContentServer {
             const shows = data.result;
             const result = {
               title: 'Newly added TV Shows',
-              content: []
+              content: [],
+              type: 'shows',
+              canLoadMore: false
             };
             for (const show of shows) {
               const showToAdd = new Show(show.title, show.overview, show.id, show.images);
@@ -509,7 +538,9 @@ export class ContentServer {
             const upcomingEpisodes = data.upcoming;
             const result = {
               title: 'Ongoing episodes',
-              content: []
+              content: [],
+              type: 'episodes',
+              canLoadMore: false
             };
             for (const episode of ongoingEpisodes) {
               let backdrop, poster;
@@ -561,7 +592,9 @@ export class ContentServer {
             const episodes = data.result;
             const result = {
               title: 'Newly added episodes',
-              content: []
+              content: [],
+              type: 'episodes',
+              canLoadMore: false
             };
             for (const episode of episodes) {
               let backdrop, poster;
