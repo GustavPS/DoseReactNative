@@ -542,7 +542,7 @@ export class ContentServer {
               type: 'episodes',
               canLoadMore: false
             };
-            for (const episode of ongoingEpisodes) {
+            for (const episode of [...upcomingEpisodes, ...ongoingEpisodes]) {
               let backdrop, poster;
               for (const image of episode.images) {
                 if (image.type === "POSTER" && image.active) {
