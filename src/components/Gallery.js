@@ -2,10 +2,22 @@ import React, { useEffect } from 'react';
 import { StyleSheet, ScrollView, Text, View } from 'react-native';
 import GalleryItem from './GalleryItem';
 
-const Gallery = ({ rowNumber, items, title, index, onFocus, onViewMoreFocus, onPress }) => {
+const Gallery = ({
+  rowNumber,
+  items,
+  title,
+  index,
+  onFocus,
+  onViewMoreFocus,
+  onPress,
+  onViewMorePress,
+  hideViewMoreButton,
+}) => {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
+      {title != null &&
+        <Text style={styles.title}>{title}</Text>
+      }
       <ScrollView
         horizontal style={styles.row}
         showsHorizontalScrollIndicator={false}
@@ -17,18 +29,22 @@ const Gallery = ({ rowNumber, items, title, index, onFocus, onViewMoreFocus, onP
             poster={`https://image.tmdb.org/t/p/w500/${item.poster}`}
             hasTVPreferredFocus={rowNumber === 0 && i === 0}
             blockFocusLeft={i === 0}
+            blockFocusRight={(hideViewMoreButton && i === items.length - 1)}
             index={index}
             onPress={onPress}
             onFocus={onFocus}
           />
         ))}
-
-        <GalleryItem
-          key={items.length + 1}
-          index={index}
-          blockFocusRight={true}
-          onFocus={onViewMoreFocus}
-        />
+        {!hideViewMoreButton &&
+          <GalleryItem
+            key={items.length + 1}
+            index={index}
+            item={title}
+            blockFocusRight={true}
+            onFocus={onViewMoreFocus}
+            onPress={onViewMorePress}
+          />
+        }
       </ScrollView>
     </View>
   );
