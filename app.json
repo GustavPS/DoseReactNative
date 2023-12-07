@@ -1,4 +1,5 @@
 {
-  "name": "DoseReactNative",
-  "displayName": "DoseReactNative"
+  "name": "Dose",
+  "displayName": "Dose",
+  "icon": "./icon.png"
 }
