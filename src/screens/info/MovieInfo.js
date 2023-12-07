@@ -7,7 +7,7 @@ import { useIsFocused } from '@react-navigation/native';
 
 export const MovieInfo = ({ route, navigation }) => {
   const { movie } = route.params;
-  const logoPath = movie.getLogoPath('original');
+  const logoPath = movie.getLogoPath('w500');
   const posterPath = movie.getPosterPath('original');
   const title = movie.getTitle();
   const description = movie.getDescription();
@@ -79,7 +79,7 @@ export const MovieInfo = ({ route, navigation }) => {
           <View style={styles.content}>
             {/* Poster */}
             <Image source={{ uri: posterPath }} style={styles.poster} />
-
+             
 
             <View style={styles.information}>
               {/* Logo / Title*/}
@@ -114,6 +114,15 @@ export const MovieInfo = ({ route, navigation }) => {
                 <Text style={styles.text}>Resume at {secondsToTime(resumeTime)}</Text>
               </TouchableOpacity>
             }
+            {/* More Button */}
+            <TouchableOpacity
+              activeOpacity={1.0}
+              style={styles.button}
+              onBlur={() => { console.log("called onblur") }}
+              onPress={() => onPlay(0)}
+            >
+              <Text style={styles.text}>...</Text>
+            </TouchableOpacity>
           </View>
 
           {/* Recommended movies */}
@@ -163,7 +172,7 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 400,
+    width: 200,
     height: 100,
     resizeMode: 'contain',
   },

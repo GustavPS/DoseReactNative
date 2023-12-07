@@ -143,6 +143,7 @@ export class DirectplayVideo extends Component {
         }
 
         <VideoControls
+          logo={this.props.logo}
           onPlay={this.onPlay}
           onPause={this.onPause}
           paused={this.state.paused}

@@ -1,9 +1,10 @@
 import React, { Component } from "react";
 import Slider from '@react-native-community/slider';
-import { StyleSheet, View, TVEventHandler, Text, FlatList, TouchableOpacity, findNodeHandle, BackHandler } from 'react-native';
+import { StyleSheet, View, TVEventHandler, Text, FlatList, Image, BackHandler } from 'react-native';
 import { PlayerButton } from "../Player/PlayerButton";
 import { SettingsBox } from "../Player/SettingsBox";
 import { SelectableText } from "../SelectableText";
+
 
 const SEEK_TIME_CHANGE = 10;
 
@@ -128,7 +129,7 @@ export class VideoControls extends Component {
       this.setState({
         visible: false
       });
-    }, 5000);
+    }, 3000);
   }
 
   /**
@@ -230,6 +231,15 @@ export class VideoControls extends Component {
       <View style={styles.container}>
         {/* Controls */}
         {this.state.visible &&
+        <>
+          <View style={styles.header}>
+              <Image
+                source={{ uri: `https://image.tmdb.org/t/p/w500/${this.props.logo}` }}
+                style={styles.logo}
+                resizeMode='center'
+              />
+          </View>
+        
           <View style={styles.lower}>
             {!this.state.seek.seeking &&
               <PlayerButton
@@ -247,13 +257,16 @@ export class VideoControls extends Component {
               disabled={true}
             />
             <Text style={styles.progressText}>{this.formatTime(this.props.duration)}</Text>
-
-            <PlayerButton
-              type="subtitle"
-              style={styles.rightButtons}
-              onPress={this.toggleSubtitleBox}
-              ref={this.subtitleButton}
-            />
+            
+            {
+              this.props.subtitles.length > 0 &&
+              <PlayerButton
+                type="subtitle"
+                style={styles.rightButtons}
+                onPress={this.toggleSubtitleBox}
+                ref={this.subtitleButton}
+              />
+            }
 
             <PlayerButton
               type="settings"
@@ -262,6 +275,7 @@ export class VideoControls extends Component {
               ref={this.resolutionButton}
             />
           </View>
+        </>
         }
 
         {/* Subtitle settings */}
@@ -309,6 +323,7 @@ export class VideoControls extends Component {
                   hasTVPreferredFocus={index === 0}
                   text={item}
                   onPress={() => this.props.onSelectResolution(item)}
+                  passedStyle={{color: "rgba(230, 230, 230, 1)"}}
                 />
               )}
             />
@@ -329,11 +344,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     bottom: 10
   },
+  header: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    marginLeft: 15,
+    marginTop: 25
+  },
+  logo: {
+    width: 170,
+    height: 100,
+  },
   lower: {
     position: 'absolute',
     bottom: 0,
     flexDirection: 'row',
     padding: 10
+  },
+  settingsText: {
+    color: 'red'
   },
   slider: {
     flex: 1

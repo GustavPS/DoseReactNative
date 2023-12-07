@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { ContentServer } from '../lib/ContentServer';
 import { GalleryList } from '../components/GalleryList';
 import { useIsFocused } from '@react-navigation/native';
@@ -19,15 +19,29 @@ export const Main = ({ navigation }) => {
     if (isFocused) {
       console.log('Updating data');
       contentServer.initialize().then(async () => {
-        const sectionList = await contentServer.listAllSections();
-        setSections(removeEmptySections(sectionList));
+        let sectionList = await contentServer.listAllSections();
+        setSections(orderSections(removeEmptySections(sectionList)));
       });
     }
   }, [isFocused]);
 
+  
 
   const removeEmptySections = (sections) => {
     return sections.filter(section => section.content.length > 0);
+  }
+
+  const orderSections = (sections) => {
+    // magic to make sure ongoing stuff is at the top
+    const orderedSections = [];
+    if (sections.filter(section => section.title === "Ongoing movies").length > 0) {
+      orderedSections.push(...sections.filter(section => section.title === "Ongoing movies"));
+    }
+    if (sections.filter(section => section.title === "Ongoing episodes").length > 0) {
+      orderedSections.push(...sections.filter(section => section.title === "Ongoing episodes"));
+    }
+    orderedSections.push(...sections.filter(section => section.title != "Ongoing episodes" && section.title != "Ongoing movies"))
+    return orderedSections;
   }
 
   const onFocusContent = async ({ item }) => {
@@ -36,6 +50,7 @@ export const Main = ({ navigation }) => {
       if (item.isMovie() && item.haveTrailer) {
         console.log('Changing trailer');
         const trailer = await contentServer.getMovieTrailer(item);
+        console.log("trailer " + trailer)
         setTrailer(trailer);
       } else {
         console.log('Changing image');
@@ -55,7 +70,6 @@ export const Main = ({ navigation }) => {
         show: item
       });
     } else if (item.isEpisode()) {
-      // TODO: Start at current time
       navigation.navigate('Player', {
         content: item,
         startTime: item.watchtime

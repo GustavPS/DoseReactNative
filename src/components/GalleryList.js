@@ -33,7 +33,7 @@ export const GalleryList = ({ sections, style, onFocus, onItemSelected, onViewMo
     <FlatList
       style={[styles.sections, style]}
       showsVerticalScrollIndicator={false}
-      decelerationRate={0}
+      decelerationRate={'normal'}
       data={sections}
       keyExtractor={(item, index) => index}
       ref={sectionListRef}

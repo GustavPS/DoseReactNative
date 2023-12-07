@@ -25,29 +25,20 @@ export const SettingsBox = React.forwardRef((props, ref) => {
 
 const styles = StyleSheet.create({
     box: {
-        backgroundColor: '#0c0d0c',
-        minHeight: 300,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
         maxHeight: 300,
         minWidth: 200,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 8,
-        },
-        shadowOpacity: 0.44,
-        shadowRadius: 10.32,
-        borderRadius: 5,
-
-        elevation: 16,
+        borderRadius: 7,
+        padding:0,
+        margin: 0,
+        color: 'rgba(215, 215, 215, 1)'
     },
-
     container: {
         width: '100%',
         height: '100%',
         justifyContent: 'center',
         alignItems: 'center'
     },
-
     title: {
         fontSize: 20,
         textAlign: 'center',

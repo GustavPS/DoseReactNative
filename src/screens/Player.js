@@ -169,6 +169,10 @@ export const Player = ({ route, navigation }) => {
     if (duration - currentTime <= 40 && !showNextEpisode && nextEpisodeExists) {
       setShowNextEpisode(true);
     }
+    if (duration - currentTime == 0 && !showNextEpisode && nextEpisodeExists) {
+      playNextEpisode();
+    }
+
   }
 
   const playNextEpisode = async () => {
@@ -185,6 +189,7 @@ export const Player = ({ route, navigation }) => {
         <DirectplayVideo
           source={directplayVideoSource}
           style={styles.videoPlayer}
+          logo={content.logo}
           subtitles={subtitles}
           resolutions={resolutions}
           onChangeResolution={switchToHls}

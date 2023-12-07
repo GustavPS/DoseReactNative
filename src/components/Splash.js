@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient"
-import React from "react"
+import React, {useEffect, useState} from "react"
 import { Image, StyleSheet, Text, View } from "react-native"
 import Video from "react-native-video"
 
@@ -22,6 +22,7 @@ export const Splash = ({ item, trailer }) => {
               paused={false}
               resizeMode='cover'
               repeat={true}
+              muted={true}
             />
           }
           {trailer == null &&

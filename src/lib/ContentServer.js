@@ -411,6 +411,7 @@ export class ContentServer {
               canLoadMore: false
             };
             for (const movie of movies) {
+              console.log("trailer: " + movie.trailer)
               result.content.push(
                 new Movie(movie.title, movie.overview, movie.id, movie.images, movie.trailer, movie.watchtime, movie.runtime)
               );
@@ -648,13 +649,13 @@ export class ContentServer {
   async listAllSections() {
     const genres = await this.getGenres();
     let promises = [
-      this.getPopularMovies(),
       this.getOngoingMovies(),
+      this.getOngoingEpisodes(),
       this.getMovieWatchlist(),
+      this.getPopularMovies(),
       this.getNewlyAddedMovies(),
       this.getNewlyReleasedMovies(),
       this.getNewlyAddedShows(),
-      this.getOngoingEpisodes(),
       this.getNewlyAddedEpisodes()
     ];
 
