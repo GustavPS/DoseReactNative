@@ -1,4 +1,4 @@
-import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Token from './Token';
 
 export class MainServer {
@@ -7,7 +7,7 @@ export class MainServer {
     }
 
     getMainServerUrl() {
-        return SecureStore.getItemAsync('mainServerUrl');
+        return AsyncStorage.getItem('mainServerUrl');
     }
 
     async initialize() {

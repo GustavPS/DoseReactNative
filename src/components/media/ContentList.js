@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground, FlatList, Animated, TouchableWithoutFeedback } from 'react-native';
 import { Poster } from './Poster';
-import { Grid, Row } from '@reactseals/react-native-leanback';
 const img = { uri: "https://image.tmdb.org/t/p/original/qA3O0xaoesnIAmMWYz0RJyFMc97.jpg" };
 
 
@@ -61,7 +60,7 @@ export const ContentList = (props) => {
     return (
         <View style={[styles.container, props.style]}>
             <Text style={styles.rowTitle}>{props.title}</Text>
-                <Row
+                <FlatList
                     data={rows}
                     attributes={{
                         width: width,

@@ -1,4 +1,4 @@
-import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { Mutex } from 'async-mutex';
 const mutex = new Mutex();
@@ -6,41 +6,41 @@ const mutex = new Mutex();
 export default class Token {
     saveToken(accessToken, refreshToken, validTo) {
         validTo = validTo.toString();
-        SecureStore.setItemAsync('accessToken', accessToken);
-        SecureStore.setItemAsync('refreshToken', refreshToken);
-        SecureStore.setItemAsync('validTo', validTo);
+        AsyncStorage.setItem('accessToken', accessToken);
+        AsyncStorage.setItem('refreshToken', refreshToken);
+        AsyncStorage.setItem('validTo', validTo);
     }
 
     saveContentToken(accessToken, validTo) {
         validTo = validTo.toString();
-        SecureStore.setItemAsync('contentAccessToken', accessToken);
-        SecureStore.setItemAsync('contentValidTo', validTo);
+        AsyncStorage.setItem('contentAccessToken', accessToken);
+        AsyncStorage.setItem('contentValidTo', validTo);
     }
 
     saveMainServerUrl(url) {
-        SecureStore.setItemAsync('mainServerUrl', url);
+        AsyncStorage.setItem('mainServerUrl', url);
     }
 
     getMainServerUrl() {
-        return SecureStore.getItemAsync('mainServerUrl');
+        return AsyncStorage.getItem('mainServerUrl');
     }
 
     async isMainTokenStored() {
-        const accessToken = await SecureStore.getItemAsync('accessToken');
-        const refreshToken = await SecureStore.getItemAsync('refreshToken');
-        const validTo = await SecureStore.getItemAsync('validTo');
+        const accessToken = await AsyncStorage.getItem('accessToken');
+        const refreshToken = await AsyncStorage.getItem('refreshToken');
+        const validTo = await AsyncStorage.getItem('validTo');
         return accessToken && refreshToken && validTo;
     }
 
     async isMainTokenValid() {
-        const validTo = await SecureStore.getItemAsync('validTo');
+        const validTo = await AsyncStorage.getItem('validTo');
         const now = new Date().getTime() / 1000;
         return parseInt(validTo) > now;
     }
 
     async isContentTokenValid(validTo) {
         if (validTo == undefined) {
-            validTo = await SecureStore.getItemAsync('contentValidTo');
+            validTo = await AsyncStorage.getItem('contentValidTo');
         }
         const now = new Date().getTime() / 1000;
         return parseInt(validTo) > now;
@@ -49,10 +49,10 @@ export default class Token {
     refreshMainToken() {
         return new Promise((resolve, reject) => {
             Promise.all([
-                SecureStore.getItemAsync('accessToken'),
-                SecureStore.getItemAsync('refreshToken'),
-                SecureStore.getItemAsync('validTo'),
-                SecureStore.getItemAsync('mainServerUrl')
+                AsyncStorage.getItem('accessToken'),
+                AsyncStorage.getItem('refreshToken'),
+                AsyncStorage.getItem('validTo'),
+                AsyncStorage.getItem('mainServerUrl')
             ]).then(([accessToken, refreshToken, validTo, mainServerUrl]) => {
                 if (refreshToken && accessToken && validTo && mainServerUrl) {
                     const url = `${mainServerUrl}/api/auth/refreshToken`;
@@ -97,7 +97,7 @@ export default class Token {
         return new Promise((resolve, reject) => {
             Promise.all([
                 this.validateMainToken(),
-                SecureStore.getItemAsync('contentServerUrl')
+                AsyncStorage.getItem('contentServerUrl')
             ]).then(([token, contentServerUrl]) => {
                 const url = `${contentServerUrl}/api/auth/validate`
                 fetch(url, {
@@ -130,9 +130,9 @@ export default class Token {
     validateMainToken() {
         return new Promise((resolve, reject) => {
             Promise.all([
-                SecureStore.getItemAsync('accessToken'),
-                SecureStore.getItemAsync('refreshToken'),
-                SecureStore.getItemAsync('validTo')
+                AsyncStorage.getItem('accessToken'),
+                AsyncStorage.getItem('refreshToken'),
+                AsyncStorage.getItem('validTo')
             ]).then(([accessToken, refreshToken, validTo]) => {
                 if (accessToken && refreshToken && validTo) {
                     this.isMainTokenValid().then(valid => {
@@ -163,8 +163,8 @@ export default class Token {
         return new Promise((resolve, reject) => {
             mutex.acquire().then(async (release) => {
                 Promise.all([
-                    SecureStore.getItemAsync('contentAccessToken'),
-                    SecureStore.getItemAsync('contentValidTo')
+                    AsyncStorage.getItem('contentAccessToken'),
+                    AsyncStorage.getItem('contentValidTo')
                 ]).then(([accessToken, validTo]) => {
                     if (accessToken && validTo) {
                         this.isContentTokenValid(validTo).then(valid => {

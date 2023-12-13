@@ -1,15 +1,19 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ImageBackground } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import background from '../../images/login_bg.jpg'
 
 export const Layout = ({ title, description, children }) => {
     return (
         <View style={{ flexDirection: "row", backgroundColor: Colors.darker, flex: 1 }}>
-            <View style={styles.about}>
-                <Text style={styles.aboutTitle}>{title}</Text>
-                <Text style={styles.aboutDescription}>{description}</Text>
-            </View>
-            <View style={styles.veritcalDivider} />
+            <ImageBackground
+                source={background}
+                style={styles.background}
+                resizeMode='contain'
+                blurRadius={3}
+            >
+                <View style={styles.blur}></View>
+            </ImageBackground>
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                 {children}
             </View>
@@ -19,23 +23,14 @@ export const Layout = ({ title, description, children }) => {
 };
 
 const styles = StyleSheet.create({
-    about: {
-        marginTop: 32,
-        marginLeft: 32,
-        marginRight: 32
-    },
-    aboutTitle: {
-        color: Colors.lighter,
-        fontSize: 24
-    },
-    aboutDescription: {
-        color: Colors.lighter,
-        fontSize: 12
-    },
-
-    veritcalDivider: {
-        width: 1,
+    background: {
+        width: '100%',
         height: '100%',
-        backgroundColor: "#ababab",
+        position: 'absolute'
+    },
+    blur: {
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        height: '100%',
+        width: '100%',
     }
 })

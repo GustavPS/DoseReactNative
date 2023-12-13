@@ -7,7 +7,6 @@
  */
 
 import React from 'react';
-import type { Node } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -32,19 +31,17 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 import { Connect } from './src/screens/setup/Connect';
-import Token from './src/lib/Token';
 import { ContentServerSetup } from './src/screens/setup/ContentServerSetup';
 import { Player } from './src/screens/Player';
 import { MovieInfo } from './src/screens/info/MovieInfo';
 import { Initial } from './src/screens/Initial';
 import { ShowInfo } from './src/screens/info/ShowInfo';
 import { SeasonInfo } from './src/screens/info/SeasonInfo';
-import { Search } from './src/screens/Search';
 import { Genre } from './src/screens/Genre';
 
 const Stack = createNativeStackNavigator();
 
-const App: () => Node = () => {
+const App = () => {
   const isDarkMode = true; //useColorScheme() === 'dark';
   const [signedIn, setSignedIn] = React.useState(false);
 
@@ -74,13 +71,6 @@ const App: () => Node = () => {
         <Stack.Screen
           name="Main"
           component={Main}
-          options={{
-            headerShown: false
-          }}
-        />
-        <Stack.Screen
-          name="Search"
-          component={Search}
           options={{
             headerShown: false
           }}

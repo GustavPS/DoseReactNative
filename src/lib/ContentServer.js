@@ -1,4 +1,6 @@
-import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 import { Episode } from './Content/Episode';
 import { Movie } from './Content/Movie';
 import { Show } from './Content/Show';
@@ -16,13 +18,13 @@ export class ContentServer {
    * @returns 
    */
   async initialize() {
-    this.url = await SecureStore.getItemAsync('contentServerUrl');
+    this.url = await AsyncStorage.getItem('contentServerUrl');
     return true;
   }
 
   async getUrl() {
     if (this.url == undefined) {
-      this.url = await SecureStore.getItemAsync('contentServerUrl');
+      this.url = await AsyncStorage.getItem('contentServerUrl');
     }
     return this.url;
   }
@@ -40,8 +42,8 @@ export class ContentServer {
     return new Promise(resolve => {
       this.token.saveContentToken(accessToken, validTo);
       Promise.all([
-        SecureStore.setItemAsync('contentServerUrl', ip),
-        SecureStore.setItemAsync('contentServerId', id)
+        AsyncStorage.setItem('contentServerUrl', ip),
+        AsyncStorage.setItem('contentServerId', id)
       ]).then(() => {
         resolve();
       });

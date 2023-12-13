@@ -1,7 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
-import * as SecureStore from 'expo-secure-store';
 import Token from '../lib/Token';
 
 export const Initial = ({ navigation }) => {

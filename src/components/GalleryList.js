@@ -1,14 +1,17 @@
 import React, { useEffect, useRef } from "react";
-import { FlatList, StyleSheet, View } from "react-native"
+import { Animated, FlatList, StyleSheet, View } from "react-native"
 import Gallery from "./Gallery";
 
 export const GalleryList = ({ sections, style, onFocus, onItemSelected, onViewMore, hideViewMoreButton }) => {
   const sectionListRef = useRef();
+  const align ='end';
 
   const handleItemFocus = ({ item, index }) => {
     sectionListRef.current.scrollToIndex({
       animated: true,
-      index: index
+      index: index,
+      align,
+      behaviour: 'smooth'
     });
 
     if (onFocus != null) {
@@ -21,7 +24,8 @@ export const GalleryList = ({ sections, style, onFocus, onItemSelected, onViewMo
   const onViewMoreFocus = ({ _item, index }) => {
     sectionListRef.current.scrollToIndex({
       animated: true,
-      index: index
+      index: index,
+      useNativeDriver: true
     });
   }
 
@@ -31,14 +35,16 @@ export const GalleryList = ({ sections, style, onFocus, onItemSelected, onViewMo
 
   return (
     <FlatList
+      hasTVPreferredFocus={true}
       style={[styles.sections, style]}
       showsVerticalScrollIndicator={false}
-      decelerationRate={'normal'}
+      decelerationRate={0}
       data={sections}
       keyExtractor={(item, index) => index}
       ref={sectionListRef}
-      scrollEnabled={false}
+      scrollEnabled={true}
       initialScrollIndex={0}
+      initialNumToRender={4}
       removeClippedSubviews={false}
       onScrollToIndexFailed={(info) => console.log(info)}
       renderItem={({ item, index }) => {
@@ -63,8 +69,9 @@ export const GalleryList = ({ sections, style, onFocus, onItemSelected, onViewMo
 
 // Footer to make the last row visible
 const styles = StyleSheet.create({
-  sections: {
+  sections :{
     flex: 1
+    
   },
   footer: {
     height: 300,
