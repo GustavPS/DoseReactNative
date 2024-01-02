@@ -1,13 +1,12 @@
 
 import React, { useRef } from 'react';
-import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground, TouchableOpacity, Image } from 'react-native';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { StyleSheet, TouchableHighlight, ImageBackground } from 'react-native';
 
 
-export const Poster = React.forwardRef((props, ref) => {
+export const Backdrop = React.forwardRef((props, ref) => {
     const [focused, setFocused] = React.useState(false);
 
-    const img = { uri: props.poster };
+    const img = { uri: props.backdrop };
     console.log(props.poster);
     const onFocus = () => {
         props.onFocus();
@@ -36,8 +35,8 @@ export const Poster = React.forwardRef((props, ref) => {
 
 const styles = StyleSheet.create({
     poster: {
-        height: 130,
-        width: 75
+        height: 200,
+        width: 395
     },
     
     posterBlurred: {

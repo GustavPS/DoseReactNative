@@ -4,7 +4,6 @@ import Video from "react-native-video"
 
 export const Splash = ({ item, trailer }) => {
 
-
   return (
     <>
       {item != null &&
@@ -33,12 +32,15 @@ export const Splash = ({ item, trailer }) => {
           }
 
           <View style={styles.textContainer}>
-            {item.logo != null &&
+            {item.logo != null && item.logo != 'no_image' &&
               <Image
-                source={{ uri: `https://image.tmdb.org/t/p/original/${item.logo}` }}
+                source={{ uri: `https://image.tmdb.org/t/p/w500/${item.logo}` }}
                 style={styles.logo}
                 resizeMode='contain'
               />
+            }
+            {item.logo == 'no_image' &&
+              <Text style={styles.title}>{item.getTitle()}</Text>
             }
             {item.logo == null && item.isEpisode() &&
               <>

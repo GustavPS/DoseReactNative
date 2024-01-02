@@ -10,7 +10,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import { MainServer } from './src/screens/setup/MainServer';
+import { MainServer } from './src/screens/setup/MainSOLD';
 import { Main } from './src/screens/Main';
 
 import {

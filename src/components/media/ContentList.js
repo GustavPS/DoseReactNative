@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground, FlatList, Animated, TouchableWithoutFeedback } from 'react-native';
-import { Poster } from './Poster';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import GalleryItem from '../GalleryItem';
 const img = { uri: "https://image.tmdb.org/t/p/original/qA3O0xaoesnIAmMWYz0RJyFMc97.jpg" };
 
 
@@ -60,27 +60,36 @@ export const ContentList = (props) => {
     return (
         <View style={[styles.container, props.style]}>
             <Text style={styles.rowTitle}>{props.title}</Text>
-                <FlatList
-                    data={rows}
-                    attributes={{
-                        width: width,
-                        height: height,
-                    }}
-                    style={{ width: '100%', height: styleHeight, marginTop: useBackdrop ? -10 : 0 }}
-                    onFocus={(item) => onFocus(item, item.isFirstItem)}
-                    onPress={(item) => onPress(item)}
-                />
-
+            <ScrollView
+                horizontal style={styles.row}
+                showsHorizontalScrollIndicator={false}
+            >
+                {
+                    data.map((item, i) => {console.log(item)})
+                }
+                {data.map((item, i) => (
+                    <GalleryItem
+                        key={i}
+                        item={item}
+                        poster={`https://image.tmdb.org/t/p/w500${item.poster}`}
+                        index={i}
+                        hasTVPreferredFocus={i === 0}
+                        onPress={onPress}
+                        onFocus={onFocus}
+                    />
+                ))}
+            </ScrollView>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        marginLeft: -30 // Margin minus because Row has weird margin that can't be removed
+        marginBottom: 10,
+        marginLeft: 50,
+        display: 'flex',
+        paddingLeft: 45,
     },
-
     rowTitle: {
         textTransform: 'capitalize',
         fontSize: 18,
@@ -96,7 +105,11 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(52, 52, 52, 0.0)',
         borderWidth: 1,
     },
-
-    backdrop: {
+    row: {
+        display: 'flex',
+        flexDirection: 'row',
+        width: '100%',
+        height: 156,
+        width: '100%',
     }
 })

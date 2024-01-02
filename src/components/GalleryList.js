@@ -4,14 +4,16 @@ import Gallery from "./Gallery";
 
 export const GalleryList = ({ sections, style, onFocus, onItemSelected, onViewMore, hideViewMoreButton }) => {
   const sectionListRef = useRef();
-  const align ='end';
+  const ITEM_HEIGHT = 186;
+  const FIRST_SCROLL = 166;
 
   const handleItemFocus = ({ item, index }) => {
-    sectionListRef.current.scrollToIndex({
+    let offset = ITEM_HEIGHT * index;
+    sectionListRef.current.scrollToOffset({
+      offset, 
       animated: true,
-      index: index,
-      align,
-      behaviour: 'smooth'
+      useNativeDriver: true
+      
     });
 
     if (onFocus != null) {
@@ -42,10 +44,13 @@ export const GalleryList = ({ sections, style, onFocus, onItemSelected, onViewMo
       data={sections}
       keyExtractor={(item, index) => index}
       ref={sectionListRef}
-      scrollEnabled={true}
+      scrollEnabled={false}
       initialScrollIndex={0}
       initialNumToRender={4}
       removeClippedSubviews={false}
+      getItemLayout={(data, index) => (
+        {length: ITEM_HEIGHT, offset: ITEM_HEIGHT * index, index}
+      )}
       onScrollToIndexFailed={(info) => console.log(info)}
       renderItem={({ item, index }) => {
         return (

@@ -12,7 +12,7 @@ export const SelectableText = ({
   passedStyle={}
 }) => {
   const selfRef = useRef(null);
-
+  // should have auto focus on first element
   return (
     <TouchableOpacity
       activeOpacity={1.0}

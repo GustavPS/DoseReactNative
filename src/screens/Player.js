@@ -4,6 +4,7 @@ import Video, { TextTrackType } from 'react-native-video';
 import { ContentServer } from '../lib/ContentServer';
 import { DirectplayVideo } from '../components/VideoPlayer/DirectplayVideo';
 import { HlsVideo } from '../components/VideoPlayer/HlsVideo';
+import LongPressOverlay from '../components/LongPressOverlay';
 
 export const Player = ({ route, navigation }) => {
   const { startTime, haveReloaded } = route.params;
@@ -84,14 +85,14 @@ export const Player = ({ route, navigation }) => {
 
     const formatedSubtitles = await formatSubtitles(subtitles, content, contentServer);
     const availableResolutions = resolutions.resolutions;
-    if (resolutions.directplay) {
+    if (!resolutions.directplay) {
       availableResolutions.push('Directplay');
     }
 
     setSubtitles(formatedSubtitles);
     setResolutions(availableResolutions);
 
-    if (resolutions.directplay) {
+    if (!resolutions.directplay) {
       setupDirectplay(url, accessToken, languages);
     } else {
       setupHls(url, accessToken, languages);
