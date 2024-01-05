@@ -1,4 +1,3 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef } from 'react';
 import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight, FlatList, TouchableWithoutFeedback, TouchableOpacity, Image, Animated, findNodeHandle } from 'react-native';
 import { useStateWithCallbackLazy } from 'use-state-with-callback';
@@ -94,13 +93,6 @@ export const LeftMenu = (props) => {
           }
         ]}
       >
-        <LinearGradient
-          // Background Linear Gradient
-          colors={['rgba(0, 0, 0, 0.9)', 'transparent']}
-          style={styles.linearGradient}
-          start={{ x: 0.5, y: 0 }}
-          end={{ x: 1, y: 0 }}
-        />
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             onPress={onPressSearch}

@@ -1,44 +1,69 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import { ContentServer } from '../lib/ContentServer';
 import { GalleryList } from '../components/GalleryList';
-import { useIsFocused } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { Splash } from '../components/Splash';
+import LongPressOverlay from '../components/LongPressOverlay';
+import LinearGradient from 'react-native-linear-gradient';
 
 
 export const Main = ({ navigation }) => {
   const [sections, setSections] = useState([]);
   const [selectedContent, setSelectedContent] = useState(null);
   const [trailer, setTrailer] = useState(null);
-  const isFocused = useIsFocused();
-
+  const nav = useNavigation();
+  const [isScreenFocused, setIsScreenFocused] = useState(false);
   let changeBackgroundTimeout = null;
   const contentServer = new ContentServer();
 
+
   useEffect(() => {
-    if (isFocused) {
+    const unsubscribe = nav.addListener('focus', () => {
+      setIsScreenFocused(true);
+    });
+
+    return unsubscribe;
+  }, [nav]);
+
+
+  useEffect(() => {
+    if (isScreenFocused) {
       console.log('Updating data');
       contentServer.initialize().then(async () => {
-        const sectionList = await contentServer.listAllSections();
-        setSections(removeEmptySections(sectionList));
+        let sectionList = await contentServer.listAllSections();
+        setSections(orderSections(removeEmptySections(sectionList)));
+        setIsScreenFocused(false); // Reset the state after updating the data
       });
     }
-  }, [isFocused]);
+  }, [isScreenFocused]);
 
+  
 
   const removeEmptySections = (sections) => {
     return sections.filter(section => section.content.length > 0);
+  }
+
+  const orderSections = (sections) => {
+    // magic to make sure ongoing stuff is at the top
+    const orderedSections = [];
+    if (sections.filter(section => section.title === "Ongoing movies").length > 0) {
+      orderedSections.push(...sections.filter(section => section.title === "Ongoing movies"));
+    }
+    if (sections.filter(section => section.title === "Ongoing episodes").length > 0) {
+      orderedSections.push(...sections.filter(section => section.title === "Ongoing episodes"));
+    }
+    orderedSections.push(...sections.filter(section => section.title != "Ongoing episodes" && section.title != "Ongoing movies"))
+    return orderedSections;
   }
 
   const onFocusContent = async ({ item }) => {
     clearTimeout(changeBackgroundTimeout);
     changeBackgroundTimeout = setTimeout(async () => {
       if (item.isMovie() && item.haveTrailer) {
-        console.log('Changing trailer');
         const trailer = await contentServer.getMovieTrailer(item);
         setTrailer(trailer);
       } else {
-        console.log('Changing image');
         setTrailer(null);
       }
       setSelectedContent(item);
@@ -55,7 +80,6 @@ export const Main = ({ navigation }) => {
         show: item
       });
     } else if (item.isEpisode()) {
-      // TODO: Start at current time
       navigation.navigate('Player', {
         content: item,
         startTime: item.watchtime
@@ -84,6 +108,12 @@ export const Main = ({ navigation }) => {
         onItemSelected={onItemSelected}
         onViewMore={onViewMore}
       />
+      
+        
+      <LinearGradient  start={{x: 0, y: 0.85}} end={{x: 0, y: 1}} colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.7)', 'rgba(0,0,0,0.9)']} style={styles.fadeOverlay}>
+      </LinearGradient>
+      
+      
     </View>
   )
 }
@@ -126,7 +156,8 @@ const styles = StyleSheet.create({
   sections: {
     top: '60%',
     position: 'absolute',
-    height: 440
+    height: 400,
+    display: 'flex',
   },
   title: {
     fontSize: 40,
@@ -136,5 +167,11 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 15,
     marginBottom: 10
+  },
+  fadeOverlay: {
+    flex: 1,
+    paddingLeft: 15,
+    paddingRight: 15,
+    borderRadius: 5
   }
 })

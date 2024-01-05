@@ -1,44 +1,52 @@
 {
-  "name": "dosereactnative",
-  "version": "0.0.1",
+  "name": "dosetv",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
-    "android": "react-native run-android",
-    "ios": "react-native run-ios",
-    "start": "react-native start",
-    "test": "jest",
-    "lint": "eslint ."
+    "android": "expo run:android",
+    "atv": "expo run:android --device TV ",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "start": "expo start",
+    "tvos": "expo run:ios --scheme DoseTV-tvOS --device \"Apple TV\"",
+    "lint": "eslint .",
+    "test": "jest"
   },
   "dependencies": {
-    "@miblanchard/react-native-slider": "^2.1.0",
-    "@react-native-community/slider": "^4.1.12",
-    "@react-navigation/native": "^6.0.6",
-    "@react-navigation/native-stack": "^6.2.5",
-    "@reactseals/react-native-leanback": "git://github.com/reactseals/react-native-leanback#0b4be5ba3db01c630eec44dffd681c024b239431",
-    "async-mutex": "^0.3.2",
-    "expo": ">=44.0.0-* <45.0.0",
-    "expo-linear-gradient": "~11.0.0",
-    "expo-secure-store": "~11.1.0",
-    "react": "17.0.1",
-    "react-native": "npm:react-native-tvos@latest",
-    "react-native-safe-area-context": "^3.3.2",
-    "react-native-screens": "^3.10.1",
-    "react-native-video": "5.2.0",
-    "rn-range-slider": "^2.1.1",
-    "use-state-with-callback": "^2.0.3",
-    "expo-av": "~10.2.0"
+    "@react-native-async-storage/async-storage": "^1.21.0",
+    "@react-native-community/slider": "^4.4.4",
+    "@react-navigation/native": "^6.1.9",
+    "@react-navigation/native-stack": "^6.9.17",
+    "async-mutex": "^0.4.0",
+    "expo": "^49.0.16",
+    "react": "18.2.0",
+    "react-native": "npm:react-native-tvos@0.73.1-2",
+    "react-native-gesture-handler": "^2.14.0",
+    "react-native-linear-gradient": "^2.8.3",
+    "react-native-qrcode-svg": "^6.2.0",
+    "react-native-safe-area-context": "^4.8.1",
+    "react-native-screens": "^3.29.0",
+    "react-native-svg": "^14.1.0",
+    "react-native-video": "6.0.0-beta.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.9",
-    "@babel/runtime": "^7.12.5",
-    "@react-native-community/eslint-config": "^2.0.0",
-    "babel-jest": "^26.6.3",
-    "eslint": "7.14.0",
-    "jest": "^26.6.3",
-    "metro-react-native-babel-preset": "^0.64.0",
-    "react-test-renderer": "17.0.1"
+    "@babel/core": "^7.20.0",
+    "@babel/preset-env": "^7.20.0",
+    "@babel/runtime": "^7.20.0",
+    "@react-native/babel-preset": "^0.73.18",
+    "@react-native/eslint-config": "^0.73.1",
+    "@react-native/metro-config": "^0.73.2",
+    "@react-native/typescript-config": "^0.73.1",
+    "@types/react": "^18.2.6",
+    "@types/react-test-renderer": "^18.0.0",
+    "babel-jest": "^29.6.3",
+    "eslint": "^8.19.0",
+    "jest": "^29.6.3",
+    "prettier": "2.8.8",
+    "react-test-renderer": "18.2.0",
+    "typescript": "5.0.4"
   },
-  "jest": {
-    "preset": "react-native"
+  "engines": {
+    "node": ">=18"
   }
 }

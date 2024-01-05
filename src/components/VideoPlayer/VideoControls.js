@@ -1,9 +1,10 @@
 import React, { Component } from "react";
 import Slider from '@react-native-community/slider';
-import { StyleSheet, View, TVEventHandler, Text, FlatList, TouchableOpacity, findNodeHandle, BackHandler } from 'react-native';
+import { StyleSheet, View, TVEventHandler, Text, FlatList, Image, BackHandler } from 'react-native';
 import { PlayerButton } from "../Player/PlayerButton";
 import { SettingsBox } from "../Player/SettingsBox";
 import { SelectableText } from "../SelectableText";
+
 
 const SEEK_TIME_CHANGE = 10;
 
@@ -27,10 +28,17 @@ export class VideoControls extends Component {
     this.playButton = React.createRef(null);
     this.subtitleButton = React.createRef(null);
     this.resolutionButton = React.createRef(null);
-    this.enableTvEventHandler();
+    this.hiddenButton = React.createRef(null);
 
     this.toggleSubtitleBox = this.toggleSubtitleBox.bind(this);
     this.toggleResolutionsBox = this.toggleResolutionsBox.bind(this);
+  }
+
+  componentDidMount() {
+    this.enableTvEventHandler();
+    this.showControls();
+    this.hiddenButton.current.focus();
+
   }
 
   componentWillUnmount() {
@@ -50,6 +58,7 @@ export class VideoControls extends Component {
       (prevState.seek.seeking && !this.state.seek.seeking)) {
       this.playButton.current.focus();
     }
+
   }
 
   formatTime(time) {
@@ -126,9 +135,11 @@ export class VideoControls extends Component {
 
     this.showControlTimeout = setTimeout(() => {
       this.setState({
-        visible: false
+        visible: false,
+        subtitlesVisible: false,
+        resolutionsVisible: false
       });
-    }, 5000);
+    }, 3000);
   }
 
   /**
@@ -175,9 +186,12 @@ export class VideoControls extends Component {
    * Enable the tv event handlers (button presses)
    */
   enableTvEventHandler() {
+    console.log("Enabling tv event handler");
     this.tvEventHandler.enable(this, (_cmp, event) => {
-      if (event.eventKeyAction === 0) {
-        if (event && event.eventType === 'select') {
+      console.log(event);
+      console.log("Kepress detected");
+      if (event.eventKeyAction === 1) {
+        if (event.eventType === 'select') {
           if (this.state.seek.seeking) {
             this.props.onSeek(this.state.seek.time);
             this.setState({
@@ -187,7 +201,7 @@ export class VideoControls extends Component {
               }
             });
           }
-        } else if (event && (event.eventType === 'right' || event.eventType === 'left')) {
+        } else if ((event.eventType === 'right' || event.eventType === 'left') || (event.eventType === 'longRight' || event.eventType === 'longLeft')) {
           // If the controls are open, and we are not seeking we should not seek
           if (this.state.visible && !this.state.seek.seeking) {
             // Call because we still have to restart the clearTimeout in this function
@@ -196,7 +210,7 @@ export class VideoControls extends Component {
           }
 
           const startTime = this.state.seek.time === 0 ? this.props.currentTime : this.state.seek.time;
-          const newTime = event.eventType === 'right'
+          const newTime = (event.eventType === 'right') || (event.eventType === 'longRight')
             ? Math.min(startTime + SEEK_TIME_CHANGE, this.props.duration)
             : Math.max(startTime - SEEK_TIME_CHANGE, 1);
 
@@ -228,8 +242,24 @@ export class VideoControls extends Component {
   render() {
     return (
       <View style={styles.container}>
+        {/* Hidden button to focus on when we want to hide the controls so that we get keypress events*/}
+        <PlayerButton
+          type="settings"
+          style={styles.hiddenButton}
+          ref={this.hiddenButton}
+          onFocus={() => this.playButton?.current?.focus()}
+        />
         {/* Controls */}
         {this.state.visible &&
+        <>
+          <View style={styles.header}>
+              <Image
+                source={{ uri: `https://image.tmdb.org/t/p/w500/${this.props.logo}` }}
+                style={styles.logo}
+                resizeMode='center'
+              />
+          </View>
+        
           <View style={styles.lower}>
             {!this.state.seek.seeking &&
               <PlayerButton
@@ -245,25 +275,36 @@ export class VideoControls extends Component {
               maximumValue={100}
               value={this.getSliderValue(this.props.currentTime, this.props.duration)}
               disabled={true}
+              thumbTintColor="white"
+              minimumTrackTintColor="white"
+              maximumTrackTintColor="rgba(255, 255, 255, 0.5)"
             />
             <Text style={styles.progressText}>{this.formatTime(this.props.duration)}</Text>
+            
+            {
+              this.props.subtitles.length > 0 && !this.state.seek.seeking &&
+              <PlayerButton
+                type="subtitle"
+                style={styles.rightButtons}
+                onPress={this.toggleSubtitleBox}
+                ref={this.subtitleButton}
+              />
+            }
 
-            <PlayerButton
-              type="subtitle"
-              style={styles.rightButtons}
-              onPress={this.toggleSubtitleBox}
-              ref={this.subtitleButton}
-            />
+            {
+              !this.state.seek.seeking &&
+              <PlayerButton
+                type="settings"
+                style={styles.rightButtons}
+                onPress={this.toggleResolutionsBox}
+                ref={this.resolutionButton}
+              />
+            }
 
-            <PlayerButton
-              type="settings"
-              style={styles.rightButtons}
-              onPress={this.toggleResolutionsBox}
-              ref={this.resolutionButton}
-            />
+            
           </View>
+        </>
         }
-
         {/* Subtitle settings */}
         {this.state.subtitlesVisible &&
           <SettingsBox
@@ -279,6 +320,7 @@ export class VideoControls extends Component {
                   hasTVPreferredFocus={index === 0}
                   text={item.language}
                   onPress={() => this.props.onSelectSubtitle(index)}
+                  passedStyle={{color: "rgba(230, 230, 230, 1)"}}
                 />
               )}
             />
@@ -288,6 +330,8 @@ export class VideoControls extends Component {
               blockFocusDown={true}
               blockFocusRight={true}
               onPress={this.props.onDisableSubtitles}
+              passedStyle={{color: "rgba(230, 230, 230, 1)"}}
+
             />
 
           </SettingsBox>
@@ -305,10 +349,11 @@ export class VideoControls extends Component {
                 <SelectableText
                   blockFocusLeft={true}
                   blockFocusRight={true}
-                  blockFocusDown={index == this.props.resolutions.length - 1}
                   hasTVPreferredFocus={index === 0}
+                  blockFocusDown={index == this.props.resolutions.length - 1}
                   text={item}
                   onPress={() => this.props.onSelectResolution(item)}
+                  passedStyle={{color: "rgba(230, 230, 230, 1)"}}
                 />
               )}
             />
@@ -329,20 +374,45 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     bottom: 10
   },
+  header: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    marginLeft: 15,
+    marginTop: 25
+  },
+  logo: {
+    width: 170,
+    height: 100,
+  },
   lower: {
     position: 'absolute',
     bottom: 0,
     flexDirection: 'row',
     padding: 10
   },
+  settingsText: {
+    color: 'red'
+  },
   slider: {
-    flex: 1
+    flex: 1,
+    color: 'white',
   },
   progressText: {
     alignSelf: 'center',
-    marginHorizontal: 10
+    marginHorizontal: 10,
+    color: 'white'
   },
   rightButtons: {
     marginEnd: 10
+  },
+  hiddenButton: {
+    opacity: 0,
+    zIndex: -1,
+    position: 'absolute',
+    width: 1,
+    height: 1,
+    left: -30,
+    bottom: 0,
   }
 });

@@ -1,4 +1,6 @@
-import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 import { Episode } from './Content/Episode';
 import { Movie } from './Content/Movie';
 import { Show } from './Content/Show';
@@ -16,13 +18,13 @@ export class ContentServer {
    * @returns 
    */
   async initialize() {
-    this.url = await SecureStore.getItemAsync('contentServerUrl');
+    this.url = await AsyncStorage.getItem('contentServerUrl');
     return true;
   }
 
   async getUrl() {
     if (this.url == undefined) {
-      this.url = await SecureStore.getItemAsync('contentServerUrl');
+      this.url = await AsyncStorage.getItem('contentServerUrl');
     }
     return this.url;
   }
@@ -40,8 +42,8 @@ export class ContentServer {
     return new Promise(resolve => {
       this.token.saveContentToken(accessToken, validTo);
       Promise.all([
-        SecureStore.setItemAsync('contentServerUrl', ip),
-        SecureStore.setItemAsync('contentServerId', id)
+        AsyncStorage.setItem('contentServerUrl', ip),
+        AsyncStorage.setItem('contentServerId', id)
       ]).then(() => {
         resolve();
       });
@@ -411,6 +413,7 @@ export class ContentServer {
               canLoadMore: false
             };
             for (const movie of movies) {
+              console.log("trailer: " + movie.trailer)
               result.content.push(
                 new Movie(movie.title, movie.overview, movie.id, movie.images, movie.trailer, movie.watchtime, movie.runtime)
               );
@@ -648,13 +651,13 @@ export class ContentServer {
   async listAllSections() {
     const genres = await this.getGenres();
     let promises = [
-      this.getPopularMovies(),
       this.getOngoingMovies(),
+      this.getOngoingEpisodes(),
       this.getMovieWatchlist(),
+      this.getPopularMovies(),
       this.getNewlyAddedMovies(),
       this.getNewlyReleasedMovies(),
       this.getNewlyAddedShows(),
-      this.getOngoingEpisodes(),
       this.getNewlyAddedEpisodes()
     ];
 

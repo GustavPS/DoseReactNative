@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import {
   StyleSheet,
   View,
@@ -21,6 +21,7 @@ const GalleryItem = ({
   const [focus, setFocus] = useState(hasTVPreferredFocus);
   const plusIcon = require('../images/circle-plus.png');
 
+
   const handleFocus = () => {
     setFocus(true);
     if (onFocus) {
@@ -42,13 +43,18 @@ const GalleryItem = ({
     }
   };
 
+  const usingPoster = item.poster != null;
+
+  const img = item.poster != null ? poster : `https://image.tmdb.org/t/p/w500${item.backdrop}`;
+
+
   const touchableHighlightRef = useRef(null);
   const onRef = useCallback((ref) => {
     if (ref) {
       touchableHighlightRef.current = ref;
     }
   }, []);
-
+  
   return (
     <TouchableHighlight
       onFocus={handleFocus}
@@ -63,14 +69,28 @@ const GalleryItem = ({
       nextFocusLeft={
         blockFocusLeft ? findNodeHandle(touchableHighlightRef.current) : null
       }>
-      <View>
-        {poster &&
-          <Image style={styles.image} source={{ uri: poster }}/>
+      <View style={styles.listItem}>
+        {usingPoster &&
+          <View>
+            <Image style={styles.poster} source={{ uri: img }}/>
+            {poster == null &&
+              <View style={[styles.image, styles.grayscale]} >
+                <Image source={plusIcon} style={styles.plusIcon} tintColor={'#fff'}/>
+                <Text style={styles.text}>View more</Text>
+              </View> 
+            }
+          </View>
         }
-        {poster == null &&
-          <View style={[styles.image, styles.grayscale]} >
-            <Image source={plusIcon} style={styles.plusIcon} tintColor={'#fff'}/>
-            <Text style={styles.text}>View more</Text>
+        {!usingPoster &&
+          <View>
+            {console.log(img)}
+            <Image style={styles.backdrop} source={{ uri: img }}/>
+            <View style={styles.episodeTitle}>
+              <Text style={{color: 'white'}}>{item.title.length > 27 ? item.title.substring(0, 27) +  '...' : item.title}</Text>
+            </View>
+            <View style={styles.episodeNumber}>
+              <Text style={{color: 'white'}}>{item.episodeNumber}</Text>
+            </View>
           </View>
         }
       </View>
@@ -84,14 +104,23 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderRadius: 8,
     marginHorizontal: 10,
+    display: 'flex',
+    flex: 1
   },
   wrapperFocused: {
     borderColor: 'whitesmoke',
   },
-  image: {
+  poster: {
     width: 101,
     height: 150,
     borderRadius: 5,
+  },
+  backdrop: {
+    width: 300,
+    height: 150,
+    borderRadius: 5,
+    overflow: 'hidden',
+    zIndex: -1
   },
   grayscale: {
     borderRadius: 5,
@@ -111,7 +140,27 @@ const styles = StyleSheet.create({
   plusIcon: {
     width: 50,
     height: 50,
+  },
+  episodeTitle: {
+    position: 'absolute',
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    width: '100%',
+    height: 30,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  episodeNumber: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    marginRight: 5,
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: -1, height: 1 },
   }
 });
 
+
 export default GalleryItem;
+

@@ -27,16 +27,22 @@ export class DirectplayVideo extends Component {
     this.disableSubtitles = this.disableSubtitles.bind(this);
     this.changeResolution = this.changeResolution.bind(this);
     this.onLoad = this.onLoad.bind(this);
+    this.onTextTracks = this.onTextTracks.bind(this);
   }
 
   onLoad(data) {
+  console.log(data)
     this.setState({
-      textTracks: data.textTracks
+      textTracks: data.textTracks || []
     }, () => {
       if (this.props.onLoad) {
         this.props.onLoad();
       }
     });
+  }
+
+  onTextTracks(data) {
+    console.log(data)
   }
 
   onPlay() {
@@ -87,6 +93,8 @@ export class DirectplayVideo extends Component {
      * 5 - 2 = 3
      * Now we now that the starting index for our subs is 3.
      */
+    console.log(`[DIRECTPLAY] Selecting subtitle index: ${index}`);
+    console.log(this.state.textTracks);
     const embeddedSubtitles = this.state.textTracks.length - this.props.subtitles.length;
     const newSubtitle = embeddedSubtitles + index;
     console.log(`[DIRECTPLAY] Changing to subtitle index: ${newSubtitle}`);
@@ -143,6 +151,7 @@ export class DirectplayVideo extends Component {
         }
 
         <VideoControls
+          logo={this.props.logo}
           onPlay={this.onPlay}
           onPause={this.onPause}
           paused={this.state.paused}

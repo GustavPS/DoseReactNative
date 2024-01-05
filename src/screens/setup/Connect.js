@@ -2,8 +2,9 @@ import React, { useRef } from 'react';
 import { Button, TextInput, View, Text, StyleSheet, TouchableHighlight } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { Layout } from '../../components/setup/Layout';
-import * as SecureStore from 'expo-secure-store';
 import Token from '../../lib/Token';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 export const Connect = ({ navigation }) => {
     const textInputRef = useRef();

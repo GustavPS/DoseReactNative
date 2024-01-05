@@ -8,10 +8,11 @@ export const SelectableText = ({
   blockFocusLeft,
   blockFocusRight,
   blockFocusUp,
-  onPress
+  onPress,
+  passedStyle={}
 }) => {
   const selfRef = useRef(null);
-
+  // should have auto focus on first element
   return (
     <TouchableOpacity
       activeOpacity={1.0}
@@ -24,7 +25,7 @@ export const SelectableText = ({
       nextFocusRight={blockFocusRight ? findNodeHandle(selfRef.current) : null}
       nextFocusLeft={blockFocusLeft ? findNodeHandle(selfRef.current) : null}
     >
-      <Text style={styles.settingsText}>{text}</Text>
+      <Text style={[ styles.settingsText, passedStyle ]}>{text}</Text>
     </TouchableOpacity>
   );
 }

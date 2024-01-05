@@ -4,6 +4,7 @@ import Video, { TextTrackType } from 'react-native-video';
 import { ContentServer } from '../lib/ContentServer';
 import { DirectplayVideo } from '../components/VideoPlayer/DirectplayVideo';
 import { HlsVideo } from '../components/VideoPlayer/HlsVideo';
+import LongPressOverlay from '../components/LongPressOverlay';
 
 export const Player = ({ route, navigation }) => {
   const { startTime, haveReloaded } = route.params;
@@ -84,14 +85,14 @@ export const Player = ({ route, navigation }) => {
 
     const formatedSubtitles = await formatSubtitles(subtitles, content, contentServer);
     const availableResolutions = resolutions.resolutions;
-    if (resolutions.directplay) {
+    if (!resolutions.directplay) {
       availableResolutions.push('Directplay');
     }
 
     setSubtitles(formatedSubtitles);
     setResolutions(availableResolutions);
 
-    if (resolutions.directplay) {
+    if (!resolutions.directplay) {
       setupDirectplay(url, accessToken, languages);
     } else {
       setupHls(url, accessToken, languages);
@@ -169,6 +170,10 @@ export const Player = ({ route, navigation }) => {
     if (duration - currentTime <= 40 && !showNextEpisode && nextEpisodeExists) {
       setShowNextEpisode(true);
     }
+    if (duration - currentTime == 0 && !showNextEpisode && nextEpisodeExists) {
+      playNextEpisode();
+    }
+
   }
 
   const playNextEpisode = async () => {
@@ -185,6 +190,7 @@ export const Player = ({ route, navigation }) => {
         <DirectplayVideo
           source={directplayVideoSource}
           style={styles.videoPlayer}
+          logo={content.logo}
           subtitles={subtitles}
           resolutions={resolutions}
           onChangeResolution={switchToHls}

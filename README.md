@@ -18,4 +18,10 @@ This is the Android TV application for [Dose](https://github.com/GustavPS/Dose).
  * Easy way to switch content server
 
 ## Future device support
-Currently the app is only built for and tested with Android TV, in the future support might be added for Android, iOS and Apple TV.
+Currently the app is only built for and tested with Android TV, in the future support might be added for Apple TV.
+
+## Screenshots
+
+![Mainscreen](/screenshots/mainpage.png "Mainscreen")
+![Seasonscreen](/screenshots/show_season.png "Seasonscreen")
+![EpisodeScreen](/screenshots/show_episode.png "EpisodeScreen")

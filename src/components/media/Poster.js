@@ -8,11 +8,10 @@ export const Poster = React.forwardRef((props, ref) => {
     const [focused, setFocused] = React.useState(false);
 
     const img = { uri: props.poster };
-
+    console.log(props.poster);
     const onFocus = () => {
         props.onFocus();
         setFocused(true);
-        
     }
 
 

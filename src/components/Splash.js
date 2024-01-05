@@ -1,10 +1,8 @@
-import { LinearGradient } from "expo-linear-gradient"
-import React from "react"
+import React, {useEffect, useState} from "react"
 import { Image, StyleSheet, Text, View } from "react-native"
 import Video from "react-native-video"
 
 export const Splash = ({ item, trailer }) => {
-
 
   return (
     <>
@@ -22,6 +20,7 @@ export const Splash = ({ item, trailer }) => {
               paused={false}
               resizeMode='cover'
               repeat={true}
+              muted={true}
             />
           }
           {trailer == null &&
@@ -33,12 +32,15 @@ export const Splash = ({ item, trailer }) => {
           }
 
           <View style={styles.textContainer}>
-            {item.logo != null &&
+            {item.logo != null && item.logo != 'no_image' &&
               <Image
-                source={{ uri: `https://image.tmdb.org/t/p/original/${item.logo}` }}
+                source={{ uri: `https://image.tmdb.org/t/p/w500/${item.logo}` }}
                 style={styles.logo}
                 resizeMode='contain'
               />
+            }
+            {item.logo == 'no_image' &&
+              <Text style={styles.title}>{item.getTitle()}</Text>
             }
             {item.logo == null && item.isEpisode() &&
               <>
@@ -53,10 +55,6 @@ export const Splash = ({ item, trailer }) => {
           </View>
         </View>
       }
-      <LinearGradient
-        colors={['#00000000', '#000000']}
-        style={{ height: '100%', width: '100%' }}>
-      </LinearGradient>
     </>
   )
 }

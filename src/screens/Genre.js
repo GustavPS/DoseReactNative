@@ -50,11 +50,9 @@ export const Genre = ({ navigation, route }) => {
     clearTimeout(changeBackgroundTimeout);
     changeBackgroundTimeout = setTimeout(async () => {
       if (item.isMovie() && item.haveTrailer) {
-        console.log('Changing trailer');
         const trailer = await contentServer.getMovieTrailer(item);
         setTrailer(trailer);
       } else {
-        console.log('Changing image');
         setTrailer(null);
       }
       setSelectedContent(item);
