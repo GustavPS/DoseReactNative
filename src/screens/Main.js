@@ -108,11 +108,11 @@ export const Main = ({ navigation }) => {
         onItemSelected={onItemSelected}
         onViewMore={onViewMore}
       />
-      {
-        //
-      //<LinearGradient  start={{x: 0, y: 0.85}} end={{x: 0, y: 1}} colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.7)', 'rgba(0,0,0,0.9)']} style={styles.fadeOverlay}>
-      //</LinearGradient>
-      }
+      
+        
+      <LinearGradient  start={{x: 0, y: 0.85}} end={{x: 0, y: 1}} colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.7)', 'rgba(0,0,0,0.9)']} style={styles.fadeOverlay}>
+      </LinearGradient>
+      
       
     </View>
   )

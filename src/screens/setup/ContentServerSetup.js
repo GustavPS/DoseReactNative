@@ -25,6 +25,22 @@ export const ContentServerSetup = ({ navigation }) => {
         });
     }, []);
 
+    const handleItemFocus = ({ item, index }) => {
+        let offset = 200 * index;
+        sectionListRef.current.scrollToOffset({
+          offset, 
+          animated: true,
+          useNativeDriver: true
+          
+        });
+    
+        if (onFocus != null) {
+          onFocus({
+            item, index
+          });
+        }
+      }
+
     const selectServer = (id) => {
         for (const server of servers) {
             if (server.server_id == id) {
@@ -64,12 +80,16 @@ export const ContentServerSetup = ({ navigation }) => {
 
     return (
         <Layout title="Content Server" description="Please choose a content server">
-            <FlatList
-                data={servers}
-                renderItem={renderItem}
-                keyExtractor={item => item.server_id}
-            />
-            
+            <View style={styles.wrapper}>
+                <Text style={{color: 'white', margin: 10}}>Choose your Content server!</Text> 
+                <FlatList
+                    data={servers}
+                    renderItem={renderItem}
+                    keyExtractor={item => item.server_id}
+                    horizontal={true}
+                    hasTVPreferredFocus={true}
+                />
+            </View>
             <Text style={styles.error}>{error}</Text>
         </Layout>
 
@@ -77,21 +97,11 @@ export const ContentServerSetup = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    item: {
-        backgroundColor: '#191919',
-        marginVertical: 8,
-        marginHorizontal: 16,
-        paddingHorizontal: 30,
-        paddingVertical: 5,
-        borderRadius: 10
-    },
-    itemTitle: {
-        fontSize: 20,
-        color: 'white'
-    },
-    itemIp: {
-        fontSize: 12,
-        color: 'whitesmoke'
+    wrapper: {
+        flex: 1,
+        display: 'flex',
+        justifyContent: 'center',
+        alignSelf: 'center',
     },
     error: {
         color: 'red',

@@ -5,7 +5,6 @@ import Gallery from "./Gallery";
 export const GalleryList = ({ sections, style, onFocus, onItemSelected, onViewMore, hideViewMoreButton }) => {
   const sectionListRef = useRef();
   const ITEM_HEIGHT = 186;
-  const FIRST_SCROLL = 166;
 
   const handleItemFocus = ({ item, index }) => {
     let offset = ITEM_HEIGHT * index;
@@ -31,6 +30,22 @@ export const GalleryList = ({ sections, style, onFocus, onItemSelected, onViewMo
     });
   }
 
+  const renderGallery = ({ item, index }) => {
+    return (
+      <Gallery
+        title={getSectionTitle(item)}
+        items={item.content}
+        rowNumber={index}
+        index={index}
+        onFocus={handleItemFocus}
+        onViewMoreFocus={onViewMoreFocus}
+        onViewMorePress={() => onViewMore(item.title, item.type)}
+        onPress={onItemSelected}
+        hideViewMoreButton={hideViewMoreButton || !item.canLoadMore}
+      />
+    )
+  }
+
   const getSectionTitle = (section) => {
     return section.type === 'shows' ? `${section.title} Shows` : section.title;
   }
@@ -52,21 +67,7 @@ export const GalleryList = ({ sections, style, onFocus, onItemSelected, onViewMo
         {length: ITEM_HEIGHT, offset: ITEM_HEIGHT * index, index}
       )}
       onScrollToIndexFailed={(info) => console.log(info)}
-      renderItem={({ item, index }) => {
-        return (
-          <Gallery
-            title={getSectionTitle(item)}
-            items={item.content}
-            rowNumber={index}
-            index={index}
-            onFocus={handleItemFocus}
-            onViewMoreFocus={onViewMoreFocus}
-            onViewMorePress={() => onViewMore(item.title, item.type)}
-            onPress={onItemSelected}
-            hideViewMoreButton={hideViewMoreButton || !item.canLoadMore}
-          />
-        )
-      }}
+      renderItem={renderGallery}
       ListFooterComponent={() => <View style={styles.footer} />}
     />
   )

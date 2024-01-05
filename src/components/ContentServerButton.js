@@ -10,6 +10,10 @@ export const ContentServerButton = (props) => {
                 props.onSelect(props.id);
             }}
             onFocus={() => setActive(true)}
+            onBlur={() => setActive(false)}
+            style={[
+                active ? styles.active : null
+            ]}
         >
             <View style={[
                 styles.item,
@@ -30,7 +34,8 @@ const styles = StyleSheet.create({
         marginHorizontal: 16,
         paddingHorizontal: 30,
         paddingVertical: 5,
-        borderRadius: 10
+        borderRadius: 10,
+        height: 60,
     },
     itemTitle: {
         fontSize: 20,
@@ -41,8 +46,7 @@ const styles = StyleSheet.create({
         color: 'whitesmoke'
     },
     active: {
-        backgroundColor: '#2b2b2b',
-        borderColor: '#191919',
+        borderColor: 'whitesmoke',
         borderWidth: 1
     }
 })
